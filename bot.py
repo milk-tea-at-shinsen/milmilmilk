@@ -29,7 +29,7 @@ async def remind(ctx, date_str: str, time_str: str, *message):
         reminders[dt] = []
         reminders[dt].append((ctx.channel.id, msg))
 
-    await ctx.send(f"{dt} にリマインダーをセットしたよ！:saluting_face:")
+    await ctx.send(f"{dt} にリマインダーをセット！:saluting_face:")
 
 # 通知用ループ
 async def reminder_loop():
