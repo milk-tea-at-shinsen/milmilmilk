@@ -20,9 +20,22 @@ async def on_ready():
 reminders = {}
 
 # !remind コマンド
+# プレフィックスコマンドの処理
 @bot.command(name="remind")
-@bot.slash_command(name="remind")
-async def remind(ctx, date_str: str, time_str: str, *message):
+async def remind_prefix(ctx, date_str: str, time_str: str, *message):
+    await remind_set(ctx, date_str, time_str, message)
+
+# スラッシュコマンドの処理
+@bot.slash_command(name="remind", description="リマインダーをセットするよ")
+async def remind_slash(
+    ctx,
+    date_str: discord.option(str, description="日付(yyyy/mm/dd)"),
+    time_str: discord.option(str, description="時刻(hh:mm)"),
+    message: discord.option(str, description="リマインド内容")
+):
+
+# 共通処理関数
+async def remind_set(ctx, date_str: str, time_str: str, *message):
     dt = datetime.datetime.strptime(f"{date_str} {time_str}", "%Y/%m/%d %H:%M")
     msg = " ".join(message)
 
