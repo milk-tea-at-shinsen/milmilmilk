@@ -14,8 +14,7 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 async def on_ready():
     print(f"起動しました！: {bot.user}")
     print(f"ループ開始： {datetime.datetime.now()}")
-    #bot.loop.create_task(reminder_loop())
-    reminder_loop.start()
+    bot.loop.create_task(reminder_loop())
 
 # 空の辞書を定義
 reminders = {}
@@ -33,15 +32,14 @@ async def remind(ctx, date_str: str, time_str: str, *message):
     await ctx.send(f"{dt} にリマインダーをセットしたよ！:saluting_face:")
 
 # 通知用ループ
-@tasks.loop(seconds=60)
 async def reminder_loop():
-    #await bot.wait_until_ready()
-    #while not bot.is_closed():
+    await bot.wait_until_ready()
+    while not bot.is_closed():
         now = datetime.datetime.now()
         next_minute = (now + datetime.timedelta(minutes=1)).replace(second=0, microsecond=0)
         wait = (next_minute - now).total_seconds()
         await asyncio.sleep(wait)
-        #print (f"毎分ゼロ秒に辞書と照合：{datetime.datetime.now()}")
+        print (f"毎分ゼロ秒に辞書と照合：{datetime.datetime.now()}")
 
         if next_minute in reminders:
             for channel_id, msg in reminders[next_minute]:
