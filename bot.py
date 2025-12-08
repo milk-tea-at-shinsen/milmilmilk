@@ -13,6 +13,8 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 @bot.event
 async def on_ready():
     print(f"起動しました！: {bot.user}")
+    print(f"ループ開始： {datetime.datetime.now()}")
+    bot.loop.create_task(reminder_loop())
 
 # 空の辞書を定義
 reminders = {}
@@ -50,12 +52,6 @@ async def reminder_loop():
                 else:
                     print(f"チャンネル取得失敗：{channel_id}")
             del reminders[next_minute]
-
-# bot起動時にループ開始
-@bot.event
-async def on_ready():
-    print(f"ループ開始： {datetime.datetime.now()}")
-    bot.loop.create_task(reminder_loop())
 
 # Botを起動
 bot.run(os.getenv("DISCORD_TOKEN"))
