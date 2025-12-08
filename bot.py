@@ -20,7 +20,8 @@ async def on_ready():
 reminders = {}
 
 # !remind コマンド
-@bot.command()
+@bot.command(name="remind")
+@bot.slash_command(name="remind")
 async def remind(ctx, date_str: str, time_str: str, *message):
     dt = datetime.datetime.strptime(f"{date_str} {time_str}", "%Y/%m/%d %H:%M")
     msg = " ".join(message)
@@ -29,7 +30,10 @@ async def remind(ctx, date_str: str, time_str: str, *message):
         reminders[dt] = []
         reminders[dt].append((ctx.channel.id, msg))
 
-    await ctx.send(f"{dt} にリマインダーをセット！:saluting_face:")
+    if isinstance(ctx, discord.ApplicationContext):
+        await ctx.respond(f"{dt} にリマインダーをセット！:saluting_face:")
+    else:
+        await ctx.send(f"{dt} にリマインダーをセット！:saluting_face:")
 
 # 通知用ループ
 async def reminder_loop():
