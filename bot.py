@@ -29,9 +29,9 @@ async def remind_prefix(ctx, date_str: str, time_str: str, *message):
 @bot.slash_command(name="remind", description="リマインダーをセットするよ")
 async def remind_slash(
     ctx,
-    date_str: discord.option(str, description="日付(yyyy/mm/dd)"),
-    time_str: discord.option(str, description="時刻(hh:mm)"),
-    message: discord.option(str, description="リマインド内容")
+    date_str: discord.Option(str, description="日付(yyyy/mm/dd)"),
+    time_str: discord.Option(str, description="時刻(hh:mm)"),
+    message: discord.Option(str, description="リマインド内容")
 ):
     await remind_set(ctx, date_str, time_str, [message])
 
