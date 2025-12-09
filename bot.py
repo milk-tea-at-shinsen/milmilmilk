@@ -60,19 +60,21 @@ async def ping(interaction: discord.Interaction):
 
 # スラッシュコマンドとプレフィックスコマンドのテスト
 async def greet_common(ctx_or_interaction, target: str):
-    msg = f"Hello, {target}!"
+    msg = f"{target}さん、こんちわ!"
     if isinstance(ctx_or_interaction, discord.Interaction):
         await ctx_or_interaction.response.send_message(msg)
     else:
         await ctx_or_interaction.send(msg)
 
 @bot.command(name="hello")
-async def hello_prefix(ctx, target: str = "prefix user"):
+async def hello_prefix(ctx):
+    target = ctx.author.display_name
     await greet_common(ctx, target)
     print(f"プレフィックスコマンドを実行: {datetime.datetime.now()}")
 
 @bot.tree.command(name="hello", description="スラッシュ版のHello")
-async def hello_slash(interaction: discord.Interaction, target: str = "slash user"):
+async def hello_slash(interaction: discord.Interaction):
+    target = interaction.user.display_name
     await greet_common(interaction, target)
     print(f"スラッシュコマンドを実行: {datetime.datetime.now()}")
 
