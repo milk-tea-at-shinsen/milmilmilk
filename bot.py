@@ -22,16 +22,16 @@ async def on_ready():
 reminders = {}
 
 # !remind コマンド
-@bot.command()
-async def remind(ctx, date_str: str, time_str: str, *message):
+@bot.tree.command(name="remind")
+async def remind(interaction: discord.Interaction, date_str: str, time_str: str, msg: str):
     dt = datetime.datetime.strptime(f"{date_str} {time_str}", "%Y/%m/%d %H:%M")
-    msg = " ".join(message)
+    #msg = " ".join(message)
 
     if dt not in reminders:
         reminders[dt] = []
-        reminders[dt].append((ctx.channel.id, msg))
+        reminders[dt].append((interaction.channel.id, msg))
 
-    await ctx.send(f"{dt} にリマインダーをセット！:saluting_face:")
+    await interaction.response.send_message(f"{dt} にリマインダーをセットしました:saluting_face:")
 
 # 通知用ループ
 async def reminder_loop():
