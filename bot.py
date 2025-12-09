@@ -52,7 +52,7 @@ async def reminder_loop():
             del reminders[next_minute]
 
 # スラッシュコマンドのテスト
-@bot.slash_command(name="ping", description="テスト用コマンド"):
+@bot.slash_command(name="ping", description="テスト用コマンド")
     async def ping(ctx):
         await ctx.respond("pong!")
 
