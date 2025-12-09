@@ -58,5 +58,21 @@ async def reminder_loop():
 async def ping(interaction: discord.Interaction):
     await interaction.response.send_message("pong!")
 
+# スラッシュコマンドとプレフィックスコマンドのテスト
+async def greet_common(ctx_or_interaction, target: str):
+    msg = f"Hello, {target}!"
+    if isinstance(ctx_or_interaction, discord.Interaction):
+        await ctx_or_interaction.response.send_message(msg)
+    else:
+        await ctx_or_interaction.send(msg)
+
+@bot.command(name="hello")
+async def hello_prefix(ctx, target: str = "prefix user"):
+    await greet_common(ctx, target)
+
+@bot.tree.command(name="hello", description="スラッシュ版のHello")
+async def hello_slash(interaction: discord.Interaction, target: str = "slash user"):
+    await greet_common(interaction, target)
+
 # Botを起動
 bot.run(os.getenv("DISCORD_TOKEN"))
