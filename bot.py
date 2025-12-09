@@ -20,23 +20,8 @@ async def on_ready():
 reminders = {}
 
 # !remind コマンド
-# プレフィックスコマンドの処理
-@bot.command(name="remind")
-async def remind_prefix(ctx, date_str: str, time_str: str, *message):
-    await remind_set(ctx, date_str, time_str, message)
-
-# スラッシュコマンドの処理
-@bot.slash_command(name="remind", description="リマインダーをセットするよ")
-async def remind_slash(
-    ctx,
-    date_str: discord.Option(str, description="日付(yyyy/mm/dd)"),
-    time_str: discord.Option(str, description="時刻(hh:mm)"),
-    message: discord.Option(str, description="リマインド内容")
-):
-    await remind_set(ctx, date_str, time_str, [message])
-
-# 共通処理関数
-async def remind_set(ctx, date_str: str, time_str: str, *message):
+@bot.command()
+async def remind(ctx, date_str: str, time_str: str, *message):
     dt = datetime.datetime.strptime(f"{date_str} {time_str}", "%Y/%m/%d %H:%M")
     msg = " ".join(message)
 
@@ -44,10 +29,7 @@ async def remind_set(ctx, date_str: str, time_str: str, *message):
         reminders[dt] = []
         reminders[dt].append((ctx.channel.id, msg))
 
-    if isinstance(ctx, discord.ApplicationContext):
-        await ctx.respond(f"{dt} にリマインダーをセット！:saluting_face:")
-    else:
-        await ctx.send(f"{dt} にリマインダーをセット！:saluting_face:")
+    await ctx.send(f"{dt} にリマインダーをセット！:saluting_face:")
 
 # 通知用ループ
 async def reminder_loop():
