@@ -51,5 +51,10 @@ async def reminder_loop():
                     print(f"チャンネル取得失敗：{channel_id}")
             del reminders[next_minute]
 
+# スラッシュコマンドのテスト
+@bot.slash_command(name="ping", description="テスト用コマンド"):
+    async def ping(ctx):
+        await ctx.respond("pong!")
+
 # Botを起動
 bot.run(os.getenv("DISCORD_TOKEN"))
