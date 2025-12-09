@@ -21,15 +21,16 @@ async def on_ready():
 # 空の辞書を定義
 reminders = {}
 
-# !remind コマンド
+# /remind コマンド
 @bot.tree.command(name="remind", description="リマインダーをセットします")
 @app_commands.describe(
-    date_str="日付(yyyy/mm/dd)",
-    time_str="時刻(hh:mm)",
+    date="日付(yyyy/mm/dd)",
+    time="時刻(hh:mm)",
+    
     msg="リマインド内容"
 )
-async def remind(interaction: discord.Interaction, date_str: str, time_str: str, msg: str):
-    dt = datetime.datetime.strptime(f"{date_str} {time_str}", "%Y/%m/%d %H:%M")
+async def remind(interaction: discord.Interaction, date: str, time: str, msg: str):
+    dt = datetime.datetime.strptime(f"{date} {time}", "%Y/%m/%d %H:%M")
 
     if dt not in reminders:
         reminders[dt] = []
