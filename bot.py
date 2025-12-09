@@ -69,10 +69,12 @@ async def greet_common(ctx_or_interaction, target: str):
 @bot.command(name="hello")
 async def hello_prefix(ctx, target: str = "prefix user"):
     await greet_common(ctx, target)
+    print(f"プレフィックスコマンドを実行: {datetime.datetime.now()}")
 
 @bot.tree.command(name="hello", description="スラッシュ版のHello")
 async def hello_slash(interaction: discord.Interaction, target: str = "slash user"):
     await greet_common(interaction, target)
+    print(f"スラッシュコマンドを実行: {datetime.datetime.now()}")
 
 # Botを起動
 bot.run(os.getenv("DISCORD_TOKEN"))
