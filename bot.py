@@ -22,10 +22,14 @@ async def on_ready():
 reminders = {}
 
 # !remind コマンド
-@bot.tree.command(name="remind")
+@bot.tree.command(name="remind", description="リマインダーをセットします")
+@app_command.describe(
+    date_str="日付(yyyy/mm/dd)",
+    time_str="時刻(hh:mm)",
+    msg="リマインド内容"
+)
 async def remind(interaction: discord.Interaction, date_str: str, time_str: str, msg: str):
     dt = datetime.datetime.strptime(f"{date_str} {time_str}", "%Y/%m/%d %H:%M")
-    #msg = " ".join(message)
 
     if dt not in reminders:
         reminders[dt] = []
