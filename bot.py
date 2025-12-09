@@ -35,7 +35,7 @@ async def remind(interaction: discord.Interaction, date: str, time: str, repeat:
 
     if dt not in reminders:
         reminders[dt] = []
-        reminders[dt].append(("repeat": repeat, "interval: interval, "channel_id": interaction.channel.id, "msg": msg))
+        reminders[dt].append(("repeat": repeat, "interval": interval, "channel_id": interaction.channel.id, "msg": msg))
 
     await interaction.response.send_message(f"{dt} にリマインダーをセットしました:saluting_face:")
     print(reminders[dt])
