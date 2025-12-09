@@ -26,17 +26,19 @@ reminders = {}
 @app_commands.describe(
     date="日付(yyyy/mm/dd)",
     time="時刻(hh:mm)",
-    
+    repeat="繰り返し単位",
+    interval="繰り返し間隔",
     msg="リマインド内容"
 )
-async def remind(interaction: discord.Interaction, date: str, time: str, msg: str):
+async def remind(interaction: discord.Interaction, date: str, time: str, repeat: str = none, interval: int = 0, msg: str):
     dt = datetime.datetime.strptime(f"{date} {time}", "%Y/%m/%d %H:%M")
 
     if dt not in reminders:
         reminders[dt] = []
-        reminders[dt].append((interaction.channel.id, msg))
+        reminders[dt].append(("repeat": repeat, "interval: interval, "channel_id": interaction.channel.id, "msg": msg))
 
     await interaction.response.send_message(f"{dt} にリマインダーをセットしました:saluting_face:")
+    print(reminders[dt])
 
 # 通知用ループ
 async def reminder_loop():
@@ -49,7 +51,9 @@ async def reminder_loop():
         print (f"毎分ゼロ秒に辞書と照合：{datetime.datetime.now()}")
 
         if next_minute in reminders:
-            for channel_id, msg in reminders[next_minute]:
+            for reminders in [next_minute]:
+                channel_id = reminders[channel_id]
+                msg = reminders[msg]
                 channel = bot.get_channel(channel_id)
                 if channel:
                     await channel.send(f"{msg}")
