@@ -50,6 +50,10 @@ async def reminder_loop():
         await asyncio.sleep(wait)
         print (f"毎分ゼロ秒に辞書と照合：{datetime.datetime.now()}")
 
+        print("reminders type:", type(reminders))
+        print("reminders keys:", list(reminders.keys()))
+        print("next_minute type:", type(next_minute), "value:", next_minute)
+
         if next_minute in reminders:
             for reminders in [next_minute]:
                 channel_id = reminders[channel_id]
