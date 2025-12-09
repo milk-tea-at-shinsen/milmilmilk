@@ -23,7 +23,7 @@ reminders = {}
 
 # !remind コマンド
 @bot.tree.command(name="remind", description="リマインダーをセットします")
-@app_command.describe(
+@app_commands.describe(
     date_str="日付(yyyy/mm/dd)",
     time_str="時刻(hh:mm)",
     msg="リマインド内容"
