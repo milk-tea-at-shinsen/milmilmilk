@@ -33,7 +33,7 @@ async def remind_slash(
     time_str: discord.option(str, description="時刻(hh:mm)"),
     message: discord.option(str, description="リマインド内容")
 ):
-    await remind_set(ctx, date_str, time_str, message)
+    await remind_set(ctx, date_str, time_str, [message])
 
 # 共通処理関数
 async def remind_set(ctx, date_str: str, time_str: str, *message):
