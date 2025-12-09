@@ -1,4 +1,5 @@
 import discord
+from discord import app_commands
 from discord.ext import commands
 import asyncio
 import datetime
@@ -12,6 +13,7 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 # Bot起動確認
 @bot.event
 async def on_ready():
+    await bot.tree.sync()
     print(f"起動しました！: {bot.user}")
     print(f"ループ開始： {datetime.datetime.now()}")
     bot.loop.create_task(reminder_loop())
@@ -50,6 +52,11 @@ async def reminder_loop():
                 else:
                     print(f"チャンネル取得失敗：{channel_id}")
             del reminders[next_minute]
+
+# スラッシュコマンドのテスト
+@bot.tree.command(name="ping", description="ピンポン！")
+async def ping(interaction: discord.Interaction):
+    await interaction.response.send_message("pong!")
 
 # Botを起動
 bot.run(os.getenv("DISCORD_TOKEN"))
