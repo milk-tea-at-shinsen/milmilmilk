@@ -14,8 +14,6 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 async def on_ready():
     print(f"起動しました！: {bot.user}")
     print(f"ループ開始： {datetime.datetime.now()}")
-    print(discord.__version__)
-    print(discord.__title)
     bot.loop.create_task(reminder_loop())
 
 # 空の辞書を定義
@@ -52,11 +50,6 @@ async def reminder_loop():
                 else:
                     print(f"チャンネル取得失敗：{channel_id}")
             del reminders[next_minute]
-
-# スラッシュコマンドのテスト
-@bot.slash_command(name="ping", description="テスト用コマンド")
-async def ping(ctx):
-    await ctx.respond("pong!")
 
 # Botを起動
 bot.run(os.getenv("DISCORD_TOKEN"))
