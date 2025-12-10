@@ -98,7 +98,7 @@ async def reminder_loop():
     time="時刻(hh:mm)",
     msg="登録済みの予定"
 )
-async def remind_delete(interaction, date, time, msg):
+async def remind_delete(interaction: discord.Interaction, date: str, time: str, msg: str = None):
     dt = datetime.datetime.strptime(f"{date} {time}", "%Y/%m/%d %H:%M")
     del reminders[dt]
     await interaction.response.send_message(f"{dt}のリマインダーを削除しました:saluting_face:")
