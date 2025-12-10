@@ -22,6 +22,14 @@ async def on_ready():
 reminders = {}
 rmd_dt = {}
 
+# 辞書登録処理
+def add_reminder(dt, repeat, interval, channel_id, msg):
+    # 日時が辞書になければ辞書に行を追加
+    if dt not in reminders:
+        reminders[dt] = []
+    # 辞書に項目を登録
+    reminders[dt].append({"repeat": repeat, "interval": interval, "channel_id": channel_id, "msg": msg})
+
 # /remind コマンド
 @bot.tree.command(name="remind", description="リマインダーをセットします")
 @app_commands.describe(
@@ -38,10 +46,8 @@ rmd_dt = {}
 ])
 async def remind(interaction: discord.Interaction, date: str, time: str, msg: str, repeat: str = None, interval: int = 0):
     dt = datetime.datetime.strptime(f"{date} {time}", "%Y/%m/%d %H:%M")
-
-    if dt not in reminders:
-        reminders[dt] = []
-    reminders[dt].append({"repeat": repeat, "interval": interval, "channel_id": interaction.channel.id, "msg": msg})
+    channel_id = interaction.channel.id
+    add_reminder(dt, repeat, interval, channel_id, msg)
 
     await interaction.response.send_message(f"{dt} にリマインダーをセットしました:saluting_face:")
     print(dt)
@@ -51,14 +57,19 @@ async def remind(interaction: discord.Interaction, date: str, time: str, msg: st
 async def reminder_loop():
     await bot.wait_until_ready()
     while not bot.is_closed():
+        # 現在時刻を取得して次のゼロ秒までsleep
         now = datetime.datetime.now()
         next_minute = (now + datetime.timedelta(minutes=1)).replace(second=0, microsecond=0)
         wait = (next_minute - now).total_seconds()
         await asyncio.sleep(wait)
 
+        # 辞書に該当時刻が登録されていた場合
         if next_minute in reminders:
+            # 該当行を取り出してラベル付きリストに代入し値を取り出す
             for rmd_dt in reminders[next_minute]:
                 channel_id = rmd_dt["channel_id"]
+                repeat = rmd_dt["repeat"]
+                interval = rmd_dt["interval"]
                 msg = rmd_dt["msg"]
                 channel = bot.get_channel(channel_id)
                 if channel:
@@ -66,6 +77,18 @@ async def reminder_loop():
                     print (f"チャンネルにメッセージを送信：{datetime.datetime.now()}")
                 else:
                     print(f"チャンネル取得失敗：{channel_id}")
+            
+                # 繰り返し予定の登録
+                if repeat:
+                    if repeat == "day":
+                        dt = next_minute + datatime.timedelta(days=interval)
+                    elif repeat == "hour":
+                        dt = next_minute + datatime.timedelta(hours=interval)
+                    elif repeat == "minute":
+                        dt = next_minute + datatime.timedelta(minutes=interval)
+                    add_reminder(dt, repeat, interval, channel_id, msg)
+            
+            # 処理済の予定の削除
             del reminders[next_minute]
 
 # スラッシュコマンドのテスト
