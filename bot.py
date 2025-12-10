@@ -81,11 +81,11 @@ async def reminder_loop():
                 # 繰り返し予定の登録
                 if repeat:
                     if repeat == "day":
-                        dt = next_minute + datatime.timedelta(days=interval)
+                        dt = next_minute + datetime.timedelta(days=interval)
                     elif repeat == "hour":
-                        dt = next_minute + datatime.timedelta(hours=interval)
+                        dt = next_minute + datetime.timedelta(hours=interval)
                     elif repeat == "minute":
-                        dt = next_minute + datatime.timedelta(minutes=interval)
+                        dt = next_minute + datetime.timedelta(minutes=interval)
                     add_reminder(dt, repeat, interval, channel_id, msg)
             
             # 処理済の予定の削除
