@@ -31,6 +31,7 @@ reminders = {}
     msg="リマインド内容"
 )
 async def remind(interaction: discord.Interaction, date: str, time: str, repeat: str, interval: int, msg: str):
+    global reminder
     dt = datetime.datetime.strptime(f"{date} {time}", "%Y/%m/%d %H:%M")
 
     if dt not in reminders:
