@@ -4,7 +4,6 @@ from discord.ext import commands
 import asyncio
 import datetime
 import os
-from typing import Optional
 
 # Botの準備
 intents = discord.Intents.default()
@@ -31,7 +30,7 @@ reminders = {}
     interval="繰り返し間隔",
     msg="リマインド内容"
 )
-async def remind(interaction: discord.Interaction, date: str, time: str, repeat: Optional[str] = None, interval: int = 0, msg: str):
+async def remind(interaction: discord.Interaction, date: str, time: str, repeat: str = None, interval: int = 0, msg: str):
     dt = datetime.datetime.strptime(f"{date} {time}", "%Y/%m/%d %H:%M")
 
     if dt not in reminders:
