@@ -55,11 +55,6 @@ async def reminder_loop():
         next_minute = (now + datetime.timedelta(minutes=1)).replace(second=0, microsecond=0)
         wait = (next_minute - now).total_seconds()
         await asyncio.sleep(wait)
-        print (f"毎分ゼロ秒に辞書と照合：{datetime.datetime.now()}")
-
-        print("reminders type:", type(reminders))
-        print("reminders keys:", list(reminders.keys()))
-        print("next_minute type:", type(next_minute), "value:", next_minute)
 
         if next_minute in reminders:
             for rmd_dt in reminders[next_minute]:
