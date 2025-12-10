@@ -20,6 +20,7 @@ async def on_ready():
 
 # 空の辞書を定義
 reminders = {}
+rmd_dt = {}
 
 # /remind コマンド
 @bot.tree.command(name="remind", description="リマインダーをセットします")
