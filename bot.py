@@ -15,12 +15,28 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 async def on_ready():
     await bot.tree.sync()
     print(f"Botを起動: {bot.user}")
+    
+    # リマインダーループの開始
     print(f"ループ開始: {datetime.datetime.now()}")
     bot.loop.create_task(reminder_loop())
+    
+    # リマインダー辞書の読み込み
+    if os.path.exists("reminders.json"):
+        with open("reminders.json"), "r", encording = "utf-8") as f:
+        reminders = json.load(f)
+        print(f"辞書ファイルを読込完了: {datetime.datetime.now()}")
+    else:
+        reminders = {}
+        print(f"空の辞書を作成: {datetime.datetime.now()}")
 
 # 空の辞書を定義
-reminders = {}
 rmd_dt = {}
+
+# 辞書をjsonファイルに保存
+def export_reminders():
+    with open("reminders.json", "w", encording = "utf-8") as f:
+    json.dump(reminders, f, ensure_ascii=False, indent=2)
+    print(f"辞書ファイルを保存完了: {datetime.datetime.now()}")
 
 # 辞書登録処理
 def add_reminder(dt, repeat, interval, channel_id, msg):
@@ -29,6 +45,7 @@ def add_reminder(dt, repeat, interval, channel_id, msg):
         reminders[dt] = []
     # 辞書に項目を登録
     reminders[dt].append({"repeat": repeat, "interval": interval, "channel_id": channel_id, "msg": msg})
+    export_reminders()
 
 # /remind コマンド
 @bot.tree.command(name="remind", description="リマインダーをセットします")
@@ -89,6 +106,7 @@ async def reminder_loop():
             
             # 処理済の予定の削除
             del reminders[next_minute]
+            export_reminders()
             print(f"{next_minute}の予定を削除")
 
 # 予定の削除
@@ -101,6 +119,7 @@ async def reminder_loop():
 async def remind_delete(interaction: discord.Interaction, date: str, time: str, msg: str = None):
     dt = datetime.datetime.strptime(f"{date} {time}", "%Y/%m/%d %H:%M")
     del reminders[dt]
+    expotr_reminders()
     await interaction.response.send_message(f"{dt}のリマインダーを削除しました:saluting_face:")
     print(f"{dt}の予定を削除")
 
