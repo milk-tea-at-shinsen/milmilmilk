@@ -31,6 +31,11 @@ rmd_dt = {}
     interval="繰り返し間隔",
     msg="リマインド内容"
 )
+@app_commands.choices(repeat=[
+    app_commands.Choice(name="日", value="day"),
+    app_commands.Choice(name="時間", value="hour"),
+    app_commands.Choice(name="分", value="minute")
+])
 async def remind(interaction: discord.Interaction, date: str, time: str, msg: str, repeat: str = None, interval: int = 0):
     dt = datetime.datetime.strptime(f"{date} {time}", "%Y/%m/%d %H:%M")
 
