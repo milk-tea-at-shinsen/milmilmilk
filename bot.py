@@ -22,7 +22,7 @@ async def on_ready():
     
     # リマインダー辞書の読み込み
     if os.path.exists("reminders.json"):
-        with open("reminders.json"), "r", encording = "utf-8") as f:
+        with open("reminders.json", "r", encording = "utf-8") as f:
         reminders = json.load(f)
         print(f"辞書ファイルを読込完了: {datetime.datetime.now()}")
     else:
