@@ -30,7 +30,7 @@ reminders = {}
     interval="繰り返し間隔",
     msg="リマインド内容"
 )
-async def remind(interaction: discord.Interaction, date: str, time: str, repeat: str, interval: int, msg: str):
+async def remind(interaction: discord.Interaction, date: str, time: str, repeat: str = none, interval: int = 0, msg: str):
     dt = datetime.datetime.strptime(f"{date} {time}", "%Y/%m/%d %H:%M")
 
     if dt not in reminders:
