@@ -10,6 +10,10 @@ intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
+# 空の辞書を定義
+rmd_dt = {}
+reminders = {}
+
 # Bot起動確認
 @bot.event
 async def on_ready():
@@ -23,14 +27,8 @@ async def on_ready():
     # リマインダー辞書の読み込み
     if os.path.exists("reminders.json"):
         with open("reminders.json", "r", encording = "utf-8") as f:
-            reminders = json.load(f)
+            global reminders = json.load(f)
         print(f"辞書ファイルを読込完了: {datetime.datetime.now()}")
-    else:
-        reminders = {}
-        print(f"空の辞書を作成: {datetime.datetime.now()}")
-
-# 空の辞書を定義
-rmd_dt = {}
 
 # 辞書をjsonファイルに保存
 def export_reminders():
