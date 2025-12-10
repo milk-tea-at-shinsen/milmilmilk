@@ -4,6 +4,7 @@ from discord.ext import commands
 import asyncio
 import datetime
 import os
+from typing import Optional
 
 # Botの準備
 intents = discord.Intents.default()
