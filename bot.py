@@ -31,7 +31,6 @@ reminders = {}
     msg="リマインド内容"
 )
 async def remind(interaction: discord.Interaction, date: str, time: str, repeat: str, interval: int, msg: str):
-    global reminder
     dt = datetime.datetime.strptime(f"{date} {time}", "%Y/%m/%d %H:%M")
 
     if dt not in reminders:
@@ -44,7 +43,6 @@ async def remind(interaction: discord.Interaction, date: str, time: str, repeat:
 
 # 通知用ループ
 async def reminder_loop():
-    global reminder
     await bot.wait_until_ready()
     while not bot.is_closed():
         now = datetime.datetime.now()
@@ -58,9 +56,9 @@ async def reminder_loop():
         print("next_minute type:", type(next_minute), "value:", next_minute)
 
         if next_minute in reminders:
-            for reminders in [next_minute]:
-                channel_id = reminders[channel_id]
-                msg = reminders[msg]
+            for rmd_dt in reminders[next_minute]:
+                channel_id = rmd_dt[channel_id]
+                msg = rmd_dt[msg]
                 channel = bot.get_channel(channel_id)
                 if channel:
                     await channel.send(f"{msg}")
