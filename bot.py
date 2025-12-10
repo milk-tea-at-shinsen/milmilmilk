@@ -39,6 +39,7 @@ async def remind(interaction: discord.Interaction, date: str, time: str, repeat:
     reminders[dt].append({"repeat": repeat, "interval": interval, "channel_id": interaction.channel.id, "msg": msg})
 
     await interaction.response.send_message(f"{dt} にリマインダーをセットしました:saluting_face:")
+    print(dt)
     print(reminders[dt])
 
 # 通知用ループ
