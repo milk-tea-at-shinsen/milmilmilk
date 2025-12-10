@@ -23,7 +23,7 @@ async def on_ready():
     # リマインダー辞書の読み込み
     if os.path.exists("reminders.json"):
         with open("reminders.json", "r", encording = "utf-8") as f:
-        reminders = json.load(f)
+            reminders = json.load(f)
         print(f"辞書ファイルを読込完了: {datetime.datetime.now()}")
     else:
         reminders = {}
@@ -35,7 +35,7 @@ rmd_dt = {}
 # 辞書をjsonファイルに保存
 def export_reminders():
     with open("reminders.json", "w", encording = "utf-8") as f:
-    json.dump(reminders, f, ensure_ascii=False, indent=2)
+        json.dump(reminders, f, ensure_ascii=False, indent=2)
     print(f"辞書ファイルを保存完了: {datetime.datetime.now()}")
 
 # 辞書登録処理
