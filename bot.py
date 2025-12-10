@@ -58,8 +58,8 @@ async def reminder_loop():
 
         if next_minute in reminders:
             for rmd_dt in reminders[next_minute]:
-                channel_id = rmd_dt[channel_id]
-                msg = rmd_dt[msg]
+                channel_id = rmd_dt["channel_id"]
+                msg = rmd_dt["msg"]
                 channel = bot.get_channel(channel_id)
                 if channel:
                     await channel.send(f"{msg}")
