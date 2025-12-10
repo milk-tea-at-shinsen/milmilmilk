@@ -44,6 +44,7 @@ async def remind(interaction: discord.Interaction, date: str, time: str, repeat:
 
 # 通知用ループ
 async def reminder_loop():
+    global reminder
     await bot.wait_until_ready()
     while not bot.is_closed():
         now = datetime.datetime.now()
