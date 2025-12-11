@@ -192,8 +192,8 @@ class ReminderSelect(View):
         printe(f"リマインダーを削除: {removed}")
 
 # 削除メニューの呼び出しコマンド
-@bot.tree.command(show_reminders)
-async def show_reminders(interaction: discord.Interaction, description="リマインダー一覧を表示します"):
+@bot.tree.command(name="show_reminders", description="リマインダー一覧を表示します")
+async def show_reminders(interaction: discord.Interaction):
     view = ReminderSelect(reminders)
     await interaction.response.send_message("削除するリマインダーを選択")
 
