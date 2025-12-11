@@ -172,7 +172,7 @@ class ReminderSelect(View):
             placeholder="削除するリマインダーを選択",
             options = options
         )
-        select.callback = selfzselect_callback
+        select.callback = self.select_callback
         self.add_item(select)
     
     # 削除処理の関数定義
