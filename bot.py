@@ -4,6 +4,7 @@ from discord.ext import commands
 import asyncio
 import datetime
 import os
+import json
 
 # Botの準備
 intents = discord.Intents.default()
@@ -118,7 +119,7 @@ async def reminder_loop():
 async def remind_delete(interaction: discord.Interaction, date: str, time: str, msg: str = None):
     dt = datetime.datetime.strptime(f"{date} {time}", "%Y/%m/%d %H:%M")
     del reminders[dt]
-    expotr_reminders()
+    export_reminders()
     await interaction.response.send_message(f"{dt}のリマインダーを削除しました:saluting_face:")
     print(f"{dt}の予定を削除")
 
