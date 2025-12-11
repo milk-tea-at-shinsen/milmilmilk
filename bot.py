@@ -80,7 +80,7 @@ async def remind(interaction: discord.Interaction, date: str, time: str, msg: st
     # add_reminder関数に渡す
     add_reminder(dt, repeat, interval, channel_id, msg)
 
-    await interaction.response.send_message(f"{dt} にリマインダーをセットしました:saluting_face:")
+    await interaction.response.send_message(f"{dt.strftime("%Y/%m/%d %H:%M")} にリマインダーをセットしました:saluting_face:")
     print(f"予定を追加: {reminders[dt]}")
 
 # 通知用ループ
@@ -134,7 +134,7 @@ async def remind_delete(interaction: discord.Interaction, date: str, time: str, 
     dt = datetime.datetime.strptime(f"{date} {time}", "%Y/%m/%d %H:%M")
     del reminders[dt]
     export_reminders()
-    await interaction.response.send_message(f"{dt}のリマインダーを削除しました:saluting_face:")
+    await interaction.response.send_message(f"{dt.strftime("%Y/%m/%d %H:%M")}のリマインダーを削除しました:saluting_face:")
     print(f"{dt}の予定を削除")
 
 # リマインダー一覧の表示
