@@ -1,6 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
+from discord.ui import View, Select
 import asyncio
 import datetime
 import os
@@ -149,6 +150,52 @@ async def reminder_list(interaction: discord.Interaction):
             list.append(f"**{dt}** - {rmd_dt['msg']}")
             msg = "\n".join(list)
     await interaction.response.send_message(f"**リマインダー一覧**\n{msg}")
+
+# 選択式削除メニュー
+# クラスの定義
+class ReminderSelect(View):
+    # クラスの初期設定
+    def __init__(self, reminders_dict):
+        # remindersプロパティにreminders_dictをセット
+        self.reminders = reminders_dict
+        
+        #削除選択リストの定義
+        options = []
+        for dt, values in reminders_dict.items():
+            for index, v in enumerate(values, start=1):
+                label = f"{dt.strftime('%Y/%m/%d %H:%M')} - {value}"
+                value = f"{dt.isoformat}|{index}"
+                options.append(discord.SelectOption(label=label, value=value))
+        
+        #selectUIの定義
+        select = Select(
+            placeholder="削除するリマインダーを選択"
+            options = options
+        )
+        select.callback = select_callback
+        self.add_item(select)
+    
+    # 削除処理の関数定義
+    async def select_callback(self, interaction: discord.Interaction):
+        value = interaction.data["values"][0]
+        dt_str, idx_str = value.split("|")
+        dt = datetime.fromisoformat(dt_str)
+        idx = int(idx_str)
+        
+        # 予定の削除
+        removed = self.reminders[dt].pop(idx)
+        # 値が空の辞書の行を削除
+        if not self.reminders[dt]:
+            del self.reminders[dt]
+        # 削除完了メッセージの送信
+        await interaction.response.send_message(f"リマインダーを削除: {removed}")
+        printe(f"リマインダーを削除: {removed}")
+
+# 削除メニューの呼び出しコマンド
+@bot.tree.command(show_reminders)
+async def show_reminders(interaction: discord.Interaction, description="リマインダー一覧を表示します"):
+    view = ReminderSelect(reminders)
+    await interaction.response.send_message("削除するリマインダーを選択")
 
 # スラッシュコマンドのテスト
 @bot.tree.command(name="ping", description="ピンポン！")
