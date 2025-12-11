@@ -19,7 +19,7 @@ def load_reminders():
         with open("/mnt/reminders/reminders.json", "r", encoding = "utf-8") as file:
             load_data = json.load(file) 
             #load_reminder関数の戻り値を設定
-            return {datetime.fromisoformat(key): value for key, value in load_data.Items()}
+            return {datetime.fromisoformat(key): value for key, value in load_data.items()}
         print(f"辞書ファイルを読込完了: {datetime.datetime.now()}")
     else:
         #jsonが存在しない場合は、戻り値を空の辞書にする
