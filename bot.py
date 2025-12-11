@@ -38,7 +38,7 @@ async def on_ready():
 # 辞書をjsonファイルに保存
 def export_reminders():
     global reminders
-    with open("reminders.json", "w", encoding = "utf-8") as f:
+    with open("/mnt/reminders/reminders.json", "w", encoding = "utf-8") as f:
         json.dump({dt.isoformat(): value for dt, value in reminders.items()}, f, ensure_ascii=False, indent=2)
     print(f"辞書ファイルを保存完了: {datetime.datetime.now()}")
 
