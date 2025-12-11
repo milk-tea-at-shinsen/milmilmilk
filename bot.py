@@ -28,7 +28,7 @@ def load_reminders():
 # 辞書を定義
 rmd_dt = {}
 #jsonファイルの内容または空の辞書
-reminders = load_reminders()  
+reminders = load_reminders() 
 
 # Bot起動確認
 @bot.event
