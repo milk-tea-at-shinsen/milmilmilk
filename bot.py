@@ -144,8 +144,9 @@ async def reminder_list(interaction: discord.Interaction):
     list = []
     # remindersの中身を取り出してリストに格納
     for dt, value in reminders.items():
-        list.append(f"{dt.strftime('%y/%m/%d %H:%M')} : {value}")
-    msg = "\n".join(list)
+        for rmd_dt in value:
+            list.append(f"{dt} - {rmd_dt['msg']}")
+            msg = "\n".join(list)
     await interaction.response.send_message(f"**リマインダー一覧**\n{msg}")
 
 # スラッシュコマンドのテスト
