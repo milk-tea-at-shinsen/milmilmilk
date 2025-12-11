@@ -11,10 +11,6 @@ intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-# 空の辞書を定義
-rmd_dt = {}
-reminders = load_reminders()
-
 # リマインダー辞書の読込
 def load_reminders():
     if os.path.exists("reminders.json"):
@@ -25,6 +21,9 @@ def load_reminders():
     else:
         return {}
 
+# 辞書を定義
+rmd_dt = {}
+reminders = load_reminders()
 
 # Bot起動確認
 @bot.event
