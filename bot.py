@@ -144,7 +144,7 @@ async def reminder_list(interaction: discord.Interaction):
     list = []
     # remindersの中身を取り出してリストに格納
     for dt, value in reminders.items():
-        dt = dt.strftime("yyyy/mm/dd HH:MM")
+        dt = dt.strftime("%y/%m/%d %H:%M")
         for rmd_dt in value:
             list.append(f"**{dt}** - {rmd_dt['msg']}")
             msg = "\n".join(list)
