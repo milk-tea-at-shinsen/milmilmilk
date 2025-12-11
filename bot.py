@@ -13,7 +13,18 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 
 # 空の辞書を定義
 rmd_dt = {}
-reminders = {}
+reminders = load_reminders()
+
+# リマインダー辞書の読込
+def load_reminders():
+    if os.path.exists("reminders.json"):
+        with open("reminders.json", "r", encoding = "utf-8") as f:
+            load_data = json.load(f)
+            return {datetime.fromisoformat(key): value for key, value in load_data.Items()}
+        print(f"辞書ファイルを読込完了: {datetime.datetime.now()}")
+    else:
+        return {}
+
 
 # Bot起動確認
 @bot.event
@@ -24,18 +35,12 @@ async def on_ready():
     # リマインダーループの開始
     print(f"ループ開始: {datetime.datetime.now()}")
     bot.loop.create_task(reminder_loop())
-    
-    # リマインダー辞書の読み込み
-    if os.path.exists("reminders.json"):
-        with open("reminders.json", "r", encoding = "utf-8") as f:
-            global reminders
-            reminders = json.load(f)
-        print(f"辞書ファイルを読込完了: {datetime.datetime.now()}")
 
 # 辞書をjsonファイルに保存
 def export_reminders():
+    global reminders
     with open("reminders.json", "w", encoding = "utf-8") as f:
-        json.dump(reminders, f, ensure_ascii=False, indent=2)
+        json.dump({dt.isoformat(): value for dt, value in reminders.items()}, f, ensure_ascii=False, indent=2)
     print(f"辞書ファイルを保存完了: {datetime.datetime.now()}")
 
 # 辞書登録処理
