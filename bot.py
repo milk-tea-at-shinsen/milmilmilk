@@ -169,7 +169,7 @@ class ReminderSelect(View):
         
         #selectUIの定義
         select = Select(
-            placeholder="削除するリマインダーを選択"
+            placeholder="削除するリマインダーを選択",
             options = options
         )
         select.callback = select_callback
