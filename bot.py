@@ -147,9 +147,13 @@ async def reminder_list(interaction: discord.Interaction):
     for dt, value in reminders.items():
         dt = dt.strftime("%Y/%m/%d %H:%M")
         for rmd_dt in value:
-            list.append(f"**{dt}** - {rmd_dt['msg']}")
-            msg = "\n".join(list)
-    await interaction.response.send_message(f"**リマインダー一覧**\n{msg}")
+            items.append(f"**{dt}** - {rmd_dt['msg']}")
+            
+    if list:
+        msg = "\n".join(items)
+        await interaction.response.send_message(f"**リマインダー一覧**\n{msg}")
+    else:
+        await interaction.response.send_message("リマインダーは設定されていません")
 
 # 選択式削除メニュー
 # クラスの定義
