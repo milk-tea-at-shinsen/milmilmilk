@@ -196,7 +196,7 @@ class ReminderSelect(View):
         export_reminders()
         # 削除完了メッセージの送信
         await interaction.response.send_message(f"リマインダーを削除: {dt.strftime('%Y/%m/%d %H:%M')} - {removed['msg']}")
-        print(f"リマインダーを削除: {dt.strftime('%Y/%m/%d %H:%M')} - {removed[''msg]}")
+        print(f"リマインダーを削除: {dt.strftime('%Y/%m/%d %H:%M')} - {removed['msg']}")
 
 # 削除メニューの呼び出しコマンド
 @bot.tree.command(name="show_reminders", description="リマインダー一覧を表示します")
