@@ -164,7 +164,8 @@ class ReminderSelect(View):
         options = []
         for dt, values in reminders_dict.items():
             for index, v in enumerate(values, start=1):
-                label = f"{dt.strftime('%Y/%m/%d %H:%M')} - {v}"
+                msg = v["msg"]
+                label = f"{dt.strftime('%Y/%m/%d %H:%M')} - {msg[:50]}"
                 value = f"{dt.isoformat}|{index}"
                 options.append(discord.SelectOption(label=label, value=value))
         
