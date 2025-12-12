@@ -156,7 +156,7 @@ async def reminder_list(interaction: discord.Interaction):
 class ReminderSelect(View):
     # クラスの初期設定
     def __init__(self, reminders_dict):
-        super（).__init__()
+        super().__init__()
         # remindersプロパティにreminders_dictをセット
         self.reminders = reminders_dict
         
