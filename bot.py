@@ -142,14 +142,14 @@ async def remind_delete(interaction: discord.Interaction, date: str, time: str, 
 @bot.tree.command(name="reminder_list", description="リマインダーの一覧を表示します")
 async def reminder_list(interaction: discord.Interaction):
     # 空のリストを作成
-    list = []
+    items = []
     # remindersの中身を取り出してリストに格納
     for dt, value in reminders.items():
-        dt = dt.strftime("%Y/%m/%d %H:%M")
+        dt_str = dt.strftime("%Y/%m/%d %H:%M")
         for rmd_dt in value:
-            items.append(f"**{dt}** - {rmd_dt['msg']}")
+            items.append(f"**{dt_str}** - {rmd_dt['msg']}")
             
-    if list:
+    if items:
         msg = "\n".join(items)
         await interaction.response.send_message(f"**リマインダー一覧**\n{msg}")
     else:
@@ -174,12 +174,13 @@ class ReminderSelect(View):
                 options.append(discord.SelectOption(label=label, value=value))
         
         #selectUIの定義
-        select = Select(
-            placeholder="削除するリマインダーを選択",
-            options = options
-        )
-        select.callback = self.select_callback
-        self.add_item(select)
+        if options:
+            select = Select(
+                placeholder="削除するリマインダーを選択",
+                options = options
+            )
+            select.callback = self.select_callback
+            self.add_item(select)
     
     # 削除処理の関数定義
     async def select_callback(self, interaction: discord.Interaction):
