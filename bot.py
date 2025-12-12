@@ -180,23 +180,23 @@ class ReminderSelect(View):
     async def select_callback(self, interaction: discord.Interaction):
         value = interaction.data["values"][0]
         dt_str, idx_str = value.split("|")
-        dt = datetime.fromisoformat(dt_str)
+        dt = datetime.datetime.fromisoformat(dt_str)
         idx = int(idx_str)
         
         # 予定の削除
-        removed = self.reminders[dt].pop(idx)
+        removed = self.reminders[dt].pop(idx-1)
         # 値が空の辞書の行を削除
         if not self.reminders[dt]:
             del self.reminders[dt]
         # 削除完了メッセージの送信
         await interaction.response.send_message(f"リマインダーを削除: {removed}")
-        printe(f"リマインダーを削除: {removed}")
+        print(f"リマインダーを削除: {removed}")
 
 # 削除メニューの呼び出しコマンド
 @bot.tree.command(name="show_reminders", description="リマインダー一覧を表示します")
 async def show_reminders(interaction: discord.Interaction):
     view = ReminderSelect(reminders)
-    await interaction.response.send_message("削除するリマインダーを選択")
+    await interaction.response.send_message("削除するリマインダーを選択", view=view)
 
 # スラッシュコマンドのテスト
 @bot.tree.command(name="ping", description="ピンポン！")
