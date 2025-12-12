@@ -166,7 +166,7 @@ class ReminderSelect(View):
             for index, v in enumerate(values, start=1):
                 msg = v["msg"]
                 label = f"{dt.strftime('%Y/%m/%d %H:%M')} - {msg[:50]}"
-                value = f"{dt.isoformat}|{index}"
+                value = f"{dt.isoformat（)}|{index}"
                 options.append(discord.SelectOption(label=label, value=value))
         
         #selectUIの定義
