@@ -133,11 +133,13 @@ async def reminder_list(interaction: discord.Interaction):
     for dt, value in reminders.items():
         dt_str = dt.strftime("%Y/%m/%d %H:%M")
         for rmd_dt in value:
-            items.append(f"{dt_str} - {rmd_dt['msg']}")
+            items.append((dt_str, rmd_dt["msg"]))
             
     if items:
-        msg = "\n".join(items)
-        await interaction.response.send_message(f"**リマインダー一覧**\n{msg}")
+        embed = discord.Enbed(title="リマインダー一覧", color=discord.Color.blue())
+        for dt_txt, msg in items:
+            embed.add_field(name=dt_txt, value=msg, inline=False)
+        await interaction.response.send_message(embed=embed)
     else:
         await interaction.response.send_message("リマインダーは設定されていません")
 
