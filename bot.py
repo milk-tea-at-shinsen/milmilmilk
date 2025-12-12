@@ -124,20 +124,6 @@ async def reminder_loop():
             export_reminders()
             print(f"{next_minute}の予定を削除")
 
-# 予定の削除
-@bot.tree.command(name="remind_delete", description="リマインダーを削除します")
-@app_commands.describe(
-    date="日付(yyyy/mm/dd)",
-    time="時刻(hh:mm)",
-    msg="登録済みの予定"
-)
-async def remind_delete(interaction: discord.Interaction, date: str, time: str, msg: str = None):
-    dt = datetime.datetime.strptime(f"{date} {time}", "%Y/%m/%d %H:%M")
-    del reminders[dt]
-    export_reminders()
-    await interaction.response.send_message(f"{dt.strftime("%Y/%m/%d %H:%M")}のリマインダーを削除しました:saluting_face:")
-    print(f"{dt}の予定を削除")
-
 # リマインダー一覧の表示
 @bot.tree.command(name="reminder_list", description="リマインダーの一覧を表示します")
 async def reminder_list(interaction: discord.Interaction):
@@ -147,7 +133,7 @@ async def reminder_list(interaction: discord.Interaction):
     for dt, value in reminders.items():
         dt_str = dt.strftime("%Y/%m/%d %H:%M")
         for rmd_dt in value:
-            items.append(f"**{dt_str}** - {rmd_dt['msg']}")
+            items.append(f"{dt_str} - {rmd_dt['msg']}")
             
     if items:
         msg = "\n".join(items)
@@ -200,8 +186,8 @@ class ReminderSelect(View):
         print(f"リマインダーを削除: {dt.strftime('%Y/%m/%d %H:%M')} - {removed['msg']}")
 
 # 削除メニューの呼び出しコマンド
-@bot.tree.command(name="show_reminders", description="リマインダー一覧を表示します")
-async def show_reminders(interaction: discord.Interaction):
+@bot.tree.command(name="reminder_delete", description="リマインダー一覧を表示します")
+async def reminder_delete(interaction: discord.Interaction):
     if reminders:
         view = ReminderSelect(reminders)
         await interaction.response.send_message("削除するリマインダーを選択", view=view)
