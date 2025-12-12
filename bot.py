@@ -195,13 +195,16 @@ class ReminderSelect(View):
             del self.reminders[dt]
         # 削除完了メッセージの送信
         await interaction.response.send_message(f"リマインダーを削除: {removed}")
-        print(f"リマインダーを削除: {removed}")
+        print(f"リマインダーを削除: {dt} - {value}")
 
 # 削除メニューの呼び出しコマンド
 @bot.tree.command(name="show_reminders", description="リマインダー一覧を表示します")
 async def show_reminders(interaction: discord.Interaction):
-    view = ReminderSelect(reminders)
-    await interaction.response.send_message("削除するリマインダーを選択", view=view)
+    if reminders:
+        view = ReminderSelect(reminders)
+        await interaction.response.send_message("削除するリマインダーを選択", view=view)
+    else:
+        await interaction.response.send_message("リマインダーは設定されていません")
 
 # スラッシュコマンドのテスト
 @bot.tree.command(name="ping", description="ピンポン！")
