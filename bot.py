@@ -184,7 +184,7 @@ class ReminderSelect(View):
             del self.reminders[dt]
         export_reminders()
         # 削除完了メッセージの送信
-        await interaction.edit_original_response(
+        await interaction.message.edit(
             content=f"リマインダーを削除: {dt.strftime('%Y/%m/%d %H:%M')} - {removed['msg']}",
             view=None
         )
