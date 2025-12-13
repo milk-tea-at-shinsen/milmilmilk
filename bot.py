@@ -136,7 +136,7 @@ async def reminder_list(interaction: discord.Interaction):
             items.append((dt_str, rmd_dt["msg"]))
             
     if items:
-        embed = discord.Enbed(title="リマインダー一覧", color=discord.Color.blue())
+        embed = discord.Embed(title="リマインダー一覧", color=discord.Color.blue())
         for dt_txt, msg in items:
             embed.add_field(name=dt_txt, value=msg, inline=False)
         await interaction.response.send_message(embed=embed)
