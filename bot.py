@@ -47,7 +47,8 @@ def export_reminders():
     #jsonファイルを開く（存在しなければ作成する）
     with open("/mnt/reminders/reminders.json", "w", encoding = "utf-8") as file:
         # datetime形式をstr形式に変換してから保存
-        json.dump({dt.isoformat(): value for dt, value in reminders.items()}, file, ensure_ascii=False, indent=2) 
+        json.dump(
+            {dt.isoformat(): valuefor dt, value in reminders.items()}, file, ensure_ascii=False, indent=2) 
     print(f"辞書ファイルを保存完了: {datetime.now()}")
 
 # -----辞書への予定登録処理-----
@@ -56,7 +57,12 @@ def add_reminder(dt, repeat, interval, channel_id, msg):
     if dt not in reminders:
         reminders[dt] = []
     # 辞書に項目を登録
-    reminders[dt].append({"repeat": repeat, "interval": interval, "channel_id": channel_id, "msg": msg})
+    reminders[dt].append(
+        {"repeat": repeat,
+         "interval": interval,
+         "channel_id": channel_id,
+         "msg": msg}
+    )
     export_reminders()
 
 # -----リマインダーの削除-----
@@ -156,6 +162,7 @@ class ReminderSelect(View):
         # 削除完了メッセージの送信
         await interaction.message.edit(
             content=f"リマインダーを削除: {dt.strftime('%Y/%m/%d %H:%M')} - {removed['msg']}",
+            allowed_mentions=discord.AllowedMentions.none(),
             view=None
         )
 
