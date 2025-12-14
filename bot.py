@@ -48,7 +48,7 @@ def export_reminders():
     with open("/mnt/reminders/reminders.json", "w", encoding = "utf-8") as file:
         # datetime形式をstr形式に変換してから保存
         json.dump(
-            {dt.isoformat(): valuefor dt, value in reminders.items()}, file, ensure_ascii=False, indent=2) 
+            {dt.isoformat(): value for dt, value in reminders.items()}, file, ensure_ascii=False, indent=2) 
     print(f"辞書ファイルを保存完了: {datetime.now()}")
 
 # -----辞書への予定登録処理-----
