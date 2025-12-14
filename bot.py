@@ -180,9 +180,10 @@ async def on_ready():
 @app_commands.describe(
     date="日付(yyyy/mm/dd)",
     time="時刻(hh:mm)",
+    channel="通知するチャンネル",
     repeat="繰り返し単位",
     interval="繰り返し間隔",
-    msg="リマインド内容"
+    msg="内容"
 )
 @app_commands.choices(repeat=[
     app_commands.Choice(name="日", value="day"),
