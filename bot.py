@@ -6,8 +6,7 @@ from discord import app_commands
 from discord.ext import commands
 from discord.ui import View, Select
 import asyncio
-import datetime
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 import json
 
@@ -84,7 +83,7 @@ async def reminder_loop():
     while not bot.is_closed():
                 # 現在時刻を取得して次のゼロ秒までsleep
         now = datetime.now()
-        next_minute = (now + datetime.timedelta(minutes=1)).replace(second=0, microsecond=0)
+        next_minute = (now + timedelta(minutes=1)).replace(second=0, microsecond=0)
         wait = (next_minute - now).total_seconds()
         await asyncio.sleep(wait)
 
@@ -106,11 +105,11 @@ async def reminder_loop():
                 # 繰り返し予定の登録
                 if repeat:
                     if repeat == "day":
-                        dt = next_minute + datetime.timedelta(days=interval)
+                        dt = next_minute + timedelta(days=interval)
                     elif repeat == "hour":
-                        dt = next_minute + datetime.timedelta(hours=interval)
+                        dt = next_minute + timedelta(hours=interval)
                     elif repeat == "minute":
-                        dt = next_minute + datetime.timedelta(minutes=interval)
+                        dt = next_minute + timedelta(minutes=interval)
                     add_reminder(dt, repeat, interval, channel_id, msg)
             
             # 処理済の予定の削除
