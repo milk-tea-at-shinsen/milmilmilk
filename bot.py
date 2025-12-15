@@ -213,7 +213,7 @@ async def remind(interaction: discord.Interaction, date: str, time: str, msg: st
     await interaction.response.send_message(f"{dt.strftime("%Y/%m/%d %H:%M")} にリマインダーをセットしました:saluting_face:")
     print(f"予定を追加: {reminders[dt]}")
 
-# リマインダー一覧の表示
+# /reminder_list コマンド
 @bot.tree.command(name="reminder_list", description="リマインダーの一覧を表示します")
 async def reminder_list(interaction: discord.Interaction):
     # 空のリストを作成
@@ -240,7 +240,7 @@ async def reminder_list(interaction: discord.Interaction):
     else:
         await interaction.response.send_message("リマインダーは設定されていません")
 
-# 削除メニューの呼び出しコマンド
+# /reminder_delete コマンド
 @bot.tree.command(name="reminder_delete", description="リマインダー一覧を表示します")
 async def reminder_delete(interaction: discord.Interaction):
     # リマインダーが設定されている場合、選択メニューを表示
@@ -250,6 +250,30 @@ async def reminder_delete(interaction: discord.Interaction):
     # リマインダーが設定されていない場合のメッセージ
     else:
         await interaction.response.send_message("リマインダーは設定されていません")
+
+# /poll コマンド
+@bot.tree.command(name="poll", description="投票を作成します")
+async def poll(interaction: discord.Interaction,
+     question: str, opt_1: str, opt_2: str=None, opt_3: str=None, opt_4: str=None, opt_5: str=None,
+     opt_6: str=None, opt_7: str=None, opt_8: str=None, opt_9: str=None, opt_10: str=None):
+    
+    # 選択肢をリストに格納
+    options = [opt_1, opt_2, opt_3, opt_4, opt_5, opt_6, opt_7, opt_8, opt_9, opt_10]
+    
+    # リアクションリスト
+    reactions = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"]
+    
+    # Embedで出力
+    embed = discord.Embed(title=question, color=discord.Color.blue())
+    for i, opt in enumerate(options):
+            embed.add_field(name=reaction[i], value=opt, inline=False)
+    await interaction.response.send_message(embed=embed)
+    
+    # リアクションを追加
+    message = await interaction.original_response()
+    for i, opt in enumerate(options):
+        if opt:
+            await message.add_reaction(reactions[i])
 
 # Botを起動
 bot.run(os.getenv("DISCORD_TOKEN"))
