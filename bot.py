@@ -279,11 +279,11 @@ async def poll(interaction: discord.Interaction,
     description = ""
     
     # 選択肢の1文字目が絵文字の場合はreactionsリストを書き換え
-    for i, opt in enumerate(options):
-        if opt:
-            first_char = opt[0]
-            if first_char in emoji.EMOJI_DATA:
-                reactions[i] = first_char
+    #for i, opt in enumerate(options):
+    #    if opt:
+    #        first_char = opt[0]
+    #        if first_char in emoji.EMOJI_DATA:
+    #            reactions[i] = first_char
 
     # Embedで出力
     for i, opt in enumerate(options):
