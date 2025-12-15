@@ -9,6 +9,7 @@ import asyncio
 from datetime import datetime, timedelta
 import os
 import json
+import emoji
 
 # Botの準備
 intents = discord.Intents.default()
