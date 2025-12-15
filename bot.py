@@ -9,6 +9,7 @@ import asyncio
 from datetime import datetime, timedelta
 import os
 import json
+import emoji
 
 # Botの準備
 intents = discord.Intents.default()
@@ -276,7 +277,14 @@ async def poll(interaction: discord.Interaction,
     reactions = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"]
     # 選択肢表示を初期化
     description = ""
-    
+
+    for i, opt in enumerate(options):
+        if opt:
+            first_char = opt[0]
+            if first_char in emoji.EMOJI_DATA:
+                # 選択肢の最初の文字が絵文字の場合、その絵文字をリアクションに使用
+                reactions[i] = first_char
+
     # Embedで出力
     for i, opt in enumerate(options):
         if opt:
