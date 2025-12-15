@@ -252,6 +252,19 @@ async def reminder_delete(interaction: discord.Interaction):
         await interaction.response.send_message("リマインダーは設定されていません")
 
 # /poll コマンド
+@app_commands.describe(
+    question="質問",
+    opt_1="選択肢1",
+    opt_2="選択肢2",
+    opt_3="選択肢3",
+    opt_4="選択肢4",
+    opt_5="選択肢5",
+    opt_6="選択肢6",
+    opt_7="選択肢7",
+    opt_8="選択肢8",
+    opt_9="選択肢9",
+    opt_10="選択肢10",
+)
 @bot.tree.command(name="poll", description="投票を作成します")
 async def poll(interaction: discord.Interaction,
      question: str, opt_1: str, opt_2: str=None, opt_3: str=None, opt_4: str=None, opt_5: str=None,
@@ -259,15 +272,16 @@ async def poll(interaction: discord.Interaction,
     
     # 選択肢をリストに格納
     options = [opt_1, opt_2, opt_3, opt_4, opt_5, opt_6, opt_7, opt_8, opt_9, opt_10]
-    
     # リアクションリスト
     reactions = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"]
+    # 選択肢表示を初期化
+    description = ""
     
     # Embedで出力
     for i, opt in enumerate(options):
         if opt:
-            desc += f"{reactions[i]} {opt}\n"
-    embed = discord.Embed(title=question, description=desc, color=discord.Color.blue())
+            description += f"{reactions[i]} {opt}\n"
+    embed = discord.Embed(title=question, description=description, color=discord.Color.blue())
     await interaction.response.send_message(embed=embed)
     
     # リアクションを追加
