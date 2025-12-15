@@ -275,7 +275,7 @@ async def poll(interaction: discord.Interaction,
     # リアクションリスト
     reactions = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"]
     # 選択肢表示を初期化
-    description = ""
+    desc = ""
     
     # 選択肢の1文字目が絵文字の場合はreactionsリストを書き換え
     #for i, opt in enumerate(options):
@@ -287,8 +287,8 @@ async def poll(interaction: discord.Interaction,
     # Embedで出力
     for i, opt in enumerate(options):
         if opt:
-            description += f"{reactions[i]} {opt}\n"
-    embed = discord.Embed(title=question, description=description, color=discord.Color.blue())
+            desc += f"{reactions[i]} {opt}\n"
+    embed = discord.Embed(title=question, description=desc, color=discord.Color.blue())
     await interaction.response.send_message(embed=embed)
     
     # リアクションを追加
