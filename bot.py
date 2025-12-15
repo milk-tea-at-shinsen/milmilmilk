@@ -282,9 +282,10 @@ async def poll(interaction: discord.Interaction,
         if opt:
             first_char = opt[0]
             if first_char in emoji.EMOJI_DATA:
-                # 選択肢の最初の文字が絵文字の場合、その絵文字をリアクションに使用
+                # 選択肢の最初の文字が絵文字の場合、その絵文字をリアクションに差替
                 reactions[i] = first_char
-                print(reactions)
+                # 選択肢から最初の文字を削除
+                options[i] = opt[1:]
 
     # Embedで出力
     for i, opt in enumerate(options):
