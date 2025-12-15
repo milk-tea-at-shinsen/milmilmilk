@@ -172,8 +172,9 @@ class ReminderSelect(View):
 # Bot起動確認
 @bot.event
 async def on_ready():
-    await bot.tree.sync()
+    synced = await bot.tree.sync()
     print(f"Botを起動: {bot.user}")
+    print(f"同期されたコマンド: {[cmd.name for cmd in synced]}")
     
     # リマインダーループの開始
     print(f"ループ開始: {datetime.now()}")
