@@ -282,7 +282,7 @@ async def poll(interaction: discord.Interaction,
     for i, opt in enumerate(options):
         if opt:
             first_char = opt[0]
-            if emoji.is_emoji(first_char):
+            if first_char in emoji.EMOJI_DATA:
                 reactions[i] = first_char
 
     # Embedで出力
