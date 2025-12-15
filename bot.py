@@ -264,10 +264,10 @@ async def poll(interaction: discord.Interaction,
     reactions = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"]
     
     # Embedで出力
-    embed = discord.Embed(title=question, color=discord.Color.blue())
     for i, opt in enumerate(options):
         if opt:
-            embed.add_field(name=reactions[i], value=opt, inline=False)
+            description += f"{reactions[i]} {opt}\n"
+    embed = discord.Embed(title=question, description=description, color=discord.Color.blue())
     await interaction.response.send_message(embed=embed)
     
     # リアクションを追加
