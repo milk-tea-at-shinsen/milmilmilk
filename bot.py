@@ -210,7 +210,7 @@ async def remind(interaction: discord.Interaction, date: str, time: str, msg: st
     # add_reminder関数に渡す
     add_reminder(dt, repeat, interval, channel_id, msg)
 
-    await interaction.response.send_message(f"{dt.strftime('%Y/%m/%d %H:%M')} にリマインダーをセットしました:saluting_face:")
+    await interaction.response.send_message(f"{dt.strftime("%Y/%m/%d %H:%M")} にリマインダーをセットしました:saluting_face:")
     print(f"予定を追加: {reminders[dt]}")
 
 # /reminder_list コマンド
@@ -252,20 +252,20 @@ async def reminder_delete(interaction: discord.Interaction):
         await interaction.response.send_message("リマインダーは設定されていません")
 
 # /poll コマンド
+@app_commands.describe(
+    question="質問",
+    opt_1="選択肢1",
+    opt_2="選択肢2",
+    opt_3="選択肢3",
+    opt_4="選択肢4",
+    opt_5="選択肢5",
+    opt_6="選択肢6",
+    opt_7="選択肢7",
+    opt_8="選択肢8",
+    opt_9="選択肢9",
+    opt_10="選択肢10",
+)
 @bot.tree.command(name="poll", description="投票を作成します")
-# @app_commands.describe(
-#     question="質問",
-#     opt_1="選択肢1",
-#     opt_2="選択肢2",
-#     opt_3="選択肢3",
-#     opt_4="選択肢4",
-#     opt_5="選択肢5",
-#     opt_6="選択肢6",
-#     opt_7="選択肢7",
-#     opt_8="選択肢8",
-#     opt_9="選択肢9",
-#     opt_10="選択肢10",
-# )
 async def poll(interaction: discord.Interaction,
      question: str, opt_1: str, opt_2: str=None, opt_3: str=None, opt_4: str=None, opt_5: str=None,
      opt_6: str=None, opt_7: str=None, opt_8: str=None, opt_9: str=None, opt_10: str=None):
@@ -275,20 +275,13 @@ async def poll(interaction: discord.Interaction,
     # リアクションリスト
     reactions = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"]
     # 選択肢表示を初期化
-    desc = ""
+    description = ""
     
-    # 選択肢の1文字目が絵文字の場合はreactionsリストを書き換え
-    #for i, opt in enumerate(options):
-    #    if opt:
-    #        first_char = opt[0]
-    #        if first_char in emoji.EMOJI_DATA:
-    #            reactions[i] = first_char
-
     # Embedで出力
     for i, opt in enumerate(options):
         if opt:
-            desc += f"{reactions[i]} {opt}\n"
-    embed = discord.Embed(title=question, description=desc, color=discord.Color.blue())
+            description += f"{reactions[i]} {opt}\n"
+    embed = discord.Embed(title=question, description=description, color=discord.Color.blue())
     await interaction.response.send_message(embed=embed)
     
     # リアクションを追加
