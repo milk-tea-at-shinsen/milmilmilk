@@ -284,6 +284,7 @@ async def poll(interaction: discord.Interaction,
             if first_char in emoji.EMOJI_DATA:
                 # 選択肢の最初の文字が絵文字の場合、その絵文字をリアクションに使用
                 reactions[i] = first_char
+                print(reactions)
 
     # Embedで出力
     for i, opt in enumerate(options):
