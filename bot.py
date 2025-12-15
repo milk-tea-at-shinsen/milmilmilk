@@ -253,19 +253,19 @@ async def reminder_delete(interaction: discord.Interaction):
 
 # /poll コマンド
 @bot.tree.command(name="poll", description="投票を作成します")
-@app_commands.describe(
-    question="質問",
-    opt_1="選択肢1",
-    opt_2="選択肢2",
-    opt_3="選択肢3",
-    opt_4="選択肢4",
-    opt_5="選択肢5",
-    opt_6="選択肢6",
-    opt_7="選択肢7",
-    opt_8="選択肢8",
-    opt_9="選択肢9",
-    opt_10="選択肢10",
-)
+# @app_commands.describe(
+#     question="質問",
+#     opt_1="選択肢1",
+#     opt_2="選択肢2",
+#     opt_3="選択肢3",
+#     opt_4="選択肢4",
+#     opt_5="選択肢5",
+#     opt_6="選択肢6",
+#     opt_7="選択肢7",
+#     opt_8="選択肢8",
+#     opt_9="選択肢9",
+#     opt_10="選択肢10",
+# )
 async def poll(interaction: discord.Interaction,
      question: str, opt_1: str, opt_2: str=None, opt_3: str=None, opt_4: str=None, opt_5: str=None,
      opt_6: str=None, opt_7: str=None, opt_8: str=None, opt_9: str=None, opt_10: str=None):
