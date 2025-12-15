@@ -253,7 +253,7 @@ async def reminder_delete(interaction: discord.Interaction):
         await interaction.response.send_message("リマインダーは設定されていません")
 
 # /poll コマンド
-@bot.tree.command(name="vote", description="投票を作成します")
+@bot.tree.command(name="poll", description="投票を作成します")
 @app_commands.describe(
     question="質問",
     opt_1="選択肢1",
@@ -267,10 +267,9 @@ async def reminder_delete(interaction: discord.Interaction):
     opt_9="選択肢9",
     opt_10="選択肢10",
 )
-async def vote(interaction: discord.Interaction,
+async def poll(interaction: discord.Interaction,
      question: str, opt_1: str, opt_2: str=None, opt_3: str=None, opt_4: str=None, opt_5: str=None,
-     opt_6: str=None, opt_7: str=None, opt_8: str=None, opt_9: str=None, opt_10: str=None):
-    print("pollコマンドが読み込まれました")    
+     opt_6: str=None, opt_7: str=None, opt_8: str=None, opt_9: str=None, opt_10: str=None): 
     # 選択肢をリストに格納
     options = [opt_1, opt_2, opt_3, opt_4, opt_5, opt_6, opt_7, opt_8, opt_9, opt_10]
     # リアクションリスト
