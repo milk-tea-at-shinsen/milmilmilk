@@ -285,7 +285,8 @@ async def poll(interaction: discord.Interaction,
                 # 選択肢の最初の文字が絵文字の場合、その絵文字をリアクションに差替
                 reactions[i] = first_char
                 # 選択肢から最初の文字を削除
-                #options[i] = opt[1:]
+                o = opt[1:]
+                options[i] = o
 
     # Embedで出力
     for i, opt in enumerate(options):
