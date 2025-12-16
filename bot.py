@@ -58,10 +58,6 @@ def export_data(data: dict, name: str):
         json.dump(data, file, ensure_ascii=False, indent=2) 
     print(f"辞書ファイルを保存完了: {datetime.now()} - {name}")
 
-# リマインダー辞書の保存
-export_reminders = {dt.isoformat(): value for dt, value in reminders.items()}
-export_data(export_reminders, "reminders")
-
 # -----辞書への予定登録処理-----
 def add_reminder(dt, repeat, interval, channel_id, msg):
     # 日時が辞書になければ辞書に行を追加
@@ -74,7 +70,10 @@ def add_reminder(dt, repeat, interval, channel_id, msg):
          "channel_id": channel_id,
          "msg": msg}
     )
-    export_reminders(reminders, "reminders")
+    
+    # リマインダー辞書の保存
+    reminders_to_save = {dt.isoformat(): value for dt, value in reminders.items()}
+    export_data(reminders_to_save, "reminders")
 
 # -----リマインダーの削除-----
 def remove_reminder(dt, idx=None):
