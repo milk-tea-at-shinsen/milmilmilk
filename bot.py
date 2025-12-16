@@ -131,7 +131,7 @@ def remove_poll(msg_id):
         removed = polls[msg_id]
         del polls[msg_id]
         save_polls()
-        print(f"投票を削除: {removed["question"]}")
+        print(f"投票を削除: {removed['question']}")
         return removed
     else:
         print(f"削除対象の投票がありません")
