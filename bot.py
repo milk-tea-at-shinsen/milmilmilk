@@ -19,38 +19,48 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 #===================================
 # 定数・グローバル変数・辞書の準備
 #===================================
-# -----リマインダー辞書の読込-----
-def load_reminders():
+# -----辞書読込共通処理-----
+def load_data(data):
     # reminders.jsonが存在すれば
-    if os.path.exists("/mnt/reminders/reminders.json"):
+    if os.path.exists(f"/mnt/{data}/{data}.json"):
         #fileオブジェクト変数に格納
-        with open("/mnt/reminders/reminders.json", "r", encoding = "utf-8") as file:
-            load_data = json.load(file) 
-            #load_reminder関数の戻り値を設定
-            return {datetime.fromisoformat(key): value for key, value in load_data.items()}
-        print(f"辞書ファイルを読込完了: {datetime.now()}")
+        with open(f"/mnt/{data}/{data}.json", "r", encoding = "utf-8") as file:
+            print(f"辞書ファイルを読込完了: {datetime.now()} - {data}")
+            return json.load(file)
     else:
         #jsonが存在しない場合は、戻り値を空の辞書にする
         return {}
 
-# -----辞書を定義-----
+# -----各辞書定義-----
+# リマインダー辞書
 rmd_dt = {}
-#jsonファイルの内容または空の辞書
-reminders = load_reminders() 
+data_raw = load_data("reminders")
+if data_raw:
+    reminders = {datetime.fromisoformat(key): value for key, value in data_raw.items()}
+else:
+    reminders = {}
+
+# 投票辞書
+data_raw = load_data("polls")
+if data_raw:
+    polls = {int(key): value for key, value in data_raw.items()}
+else:
+    polls = {}
 
 #===============
 # 共通処理関数
 #===============
 # -----辞書をjsonファイルに保存-----
-def export_reminders():
-    #remindersに値を代入するためグローバル宣言
-    global reminders
+def export_data(data: dict, name: str):
     #jsonファイルを開く（存在しなければ作成する）
-    with open("/mnt/reminders/reminders.json", "w", encoding = "utf-8") as file:
-        # datetime形式をstr形式に変換してから保存
-        json.dump(
-            {dt.isoformat(): value for dt, value in reminders.items()}, file, ensure_ascii=False, indent=2) 
-    print(f"辞書ファイルを保存完了: {datetime.now()}")
+    with open(f"/mnt/{name}/{name}.json", "w", encoding = "utf-8") as file:
+        # jsonファイルを保存
+        json.dump(data, file, ensure_ascii=False, indent=2) 
+    print(f"辞書ファイルを保存完了: {datetime.now()} - {name}")
+
+# リマインダー辞書の保存
+export_reminders = {dt.isoformat(): value for dt, value in reminders.items()}
+export_data(export_reminders, reminders)
 
 # -----辞書への予定登録処理-----
 def add_reminder(dt, repeat, interval, channel_id, msg):
