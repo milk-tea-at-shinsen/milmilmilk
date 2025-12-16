@@ -60,7 +60,7 @@ def export_data(data: dict, name: str):
 
 # リマインダー辞書の保存
 export_reminders = {dt.isoformat(): value for dt, value in reminders.items()}
-export_data(export_reminders, reminders)
+export_data(export_reminders, "reminders")
 
 # -----辞書への予定登録処理-----
 def add_reminder(dt, repeat, interval, channel_id, msg):
