@@ -19,7 +19,7 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 #===================================
 # 定数・グローバル変数・辞書の準備
 #===================================
-# -----辞書読込共通処理-----
+#-----辞書読込共通処理-----
 def load_data(data):
     # reminders.jsonが存在すれば
     if os.path.exists(f"/mnt/{data}/{data}.json"):
@@ -31,9 +31,8 @@ def load_data(data):
         #jsonが存在しない場合は、戻り値を空の辞書にする
         return {}
 
-# -----各辞書定義-----
+#-----各辞書定義-----
 # リマインダー辞書
-rmd_dt = {}
 data_raw = load_data("reminders")
 if data_raw:
     reminders = {datetime.fromisoformat(key): value for key, value in data_raw.items()}
@@ -50,15 +49,22 @@ else:
 #===============
 # 共通処理関数
 #===============
-# -----辞書をjsonファイルに保存-----
+#-----辞書をjsonファイルに保存-----
 def export_data(data: dict, name: str):
+    # 指定ディレクトリがなければ作成する
+    os.makedirs(f"/mnt/{name}", exist_ok=True)
     #jsonファイルを開く（存在しなければ作成する）
     with open(f"/mnt/{name}/{name}.json", "w", encoding = "utf-8") as file:
         # jsonファイルを保存
         json.dump(data, file, ensure_ascii=False, indent=2) 
     print(f"辞書ファイルを保存完了: {datetime.now()} - {name}")
 
-# -----辞書への予定登録処理-----
+#-----jsonファイル保存前処理(reminders)-----
+def save_reminders():
+    reminders_to_save = {dt.isoformat(): value for dt, value in reminders.items()}
+    export_data(reminders_to_save, "reminders")
+
+#-----辞書への予定登録処理-----
 def add_reminder(dt, repeat, interval, channel_id, msg):
     # 日時が辞書になければ辞書に行を追加
     if dt not in reminders:
@@ -70,28 +76,34 @@ def add_reminder(dt, repeat, interval, channel_id, msg):
          "channel_id": channel_id,
          "msg": msg}
     )
-    
-    # リマインダー辞書の保存
-    reminders_to_save = {dt.isoformat(): value for dt, value in reminders.items()}
-    export_data(reminders_to_save, "reminders")
+    # json保存前処理
+    save_reminders()
 
 # -----リマインダーの削除-----
 def remove_reminder(dt, idx=None):
     # idxがNoneの場合は日時全体を削除、そうでなければ指定インデックスの行を削除
     if idx is None:
         if dt in reminders:
+            removed = reminders[dt]
             del reminders[dt]
-            export_reminders()
+            save_reminders()
             print(f"リマインダーを削除: {dt.strftime('%Y/%m/%d %H:%M')}")
-        return None
+            return removed
+        else:
+            print(f"削除対象のリマインダーがありません")
+            return None
     else:
-        removed = reminders[dt].pop(idx-1)
-        # 値が空の日時全体を削除
-        if not reminders[dt]:
-            del reminders[dt]
-        export_reminders()
-        print(f"リマインダーを削除: {dt.strftime('%Y/%m/%d %H:%M')} - {removed['msg']}")
-        return removed
+        if dt in reminders and 0 <= (idx-1) <= len(reminders[dt]):
+            removed = reminders[dt].pop(idx-1)
+            # 値が空の日時全体を削除
+            if not reminders[dt]:
+                del reminders[dt]
+            save_reminders()
+            print(f"リマインダーを削除: {dt.strftime('%Y/%m/%d %H:%M')} - {removed['msg']}")
+            return removed
+        else:
+            print(f"削除対象のリマインダーがありません")
+            return None
 
 # 通知用ループ
 async def reminder_loop():
