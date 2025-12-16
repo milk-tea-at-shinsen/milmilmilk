@@ -93,7 +93,7 @@ def remove_reminder(dt, idx=None):
             print(f"削除対象のリマインダーがありません")
             return None
     else:
-        if dt in reminders and 0 <= (idx-1) <= len(reminders[dt]):
+        if dt in reminders and 0 <= (idx-1) < len(reminders[dt]):
             removed = reminders[dt].pop(idx-1)
             # 値が空の日時全体を削除
             if not reminders[dt]:
