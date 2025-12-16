@@ -19,7 +19,7 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 #===================================
 # 定数・グローバル変数・辞書の準備
 #===================================
-#-----辞書読込共通処理-----
+#=====辞書読込共通処理=====
 def load_data(data):
     # reminders.jsonが存在すれば
     if os.path.exists(f"/mnt/{data}/{data}.json"):
@@ -31,7 +31,7 @@ def load_data(data):
         #jsonが存在しない場合は、戻り値を空の辞書にする
         return {}
 
-#-----各辞書定義-----
+#=====各辞書定義=====
 #---リマインダー辞書---
 data_raw = load_data("reminders")
 if data_raw:
@@ -49,7 +49,7 @@ else:
 #===============
 # 共通処理関数
 #===============
-#-----辞書をjsonファイルに保存-----
+#=====辞書をjsonファイルに保存=====
 def export_data(data: dict, name: str):
     # 指定ディレクトリがなければ作成する
     os.makedirs(f"/mnt/{name}", exist_ok=True)
@@ -59,7 +59,7 @@ def export_data(data: dict, name: str):
         json.dump(data, file, ensure_ascii=False, indent=2) 
     print(f"辞書ファイルを保存完了: {datetime.now()} - {name}")
 
-#-----jsonファイル保存前処理-----
+#=====jsonファイル保存前処理=====
 #---リマインダー---
 def save_reminders():
     reminders_to_save = {dt.isoformat(): value for dt, value in reminders.items()}
@@ -69,7 +69,7 @@ def save_reminders():
 def save_polls():
     export_data(polls, "polls")
 
-#-----辞書への登録処理-----
+#=====辞書への登録処理=====
 #---リマインダー---
 def add_reminder(dt, repeat, interval, channel_id, msg):
     # 日時が辞書になければ辞書に行を追加
@@ -98,7 +98,7 @@ def add_poll(msg_id, question):
     # json保存前処理
     save_polls()
 
-#-----辞書からの削除処理-----
+#=====辞書からの削除処理=====
 #---リマインダー---
 def remove_reminder(dt, idx=None):
     # idxがNoneの場合は日時全体を削除、そうでなければ指定インデックスの行を削除
@@ -131,17 +131,17 @@ def remove_poll(msg_id):
         removed = polls[msg_id]
         del polls[msg_id]
         save_polls()
-        print(f"投票を削除: {removed[question]}")
+        print(f"投票を削除: {removed["question"]}")
         return removed
     else:
         print(f"削除対象の投票がありません")
         return None
 
-#-----通知用ループ処理-----
+#=====通知用ループ処理=====
 async def reminder_loop():
     await bot.wait_until_ready()
     while not bot.is_closed():
-                # 現在時刻を取得して次のゼロ秒までsleep
+        # 現在時刻を取得して次のゼロ秒までsleep
         now = datetime.now()
         next_minute = (now + timedelta(minutes=1)).replace(second=0, microsecond=0)
         wait = (next_minute - now).total_seconds()
@@ -237,7 +237,7 @@ async def on_ready():
 #===============
 # コマンド定義
 #===============
-#-----/remind コマンド-----
+#=====/remind コマンド=====
 @bot.tree.command(name="remind", description="リマインダーをセットします")
 @app_commands.describe(
     date="日付(yyyy/mm/dd)",
@@ -268,7 +268,7 @@ async def remind(interaction: discord.Interaction, date: str, time: str, msg: st
     await interaction.response.send_message(f"{dt.strftime('%Y/%m/%d %H:%M')} にリマインダーをセットしました:saluting_face:")
     print(f"予定を追加: {reminders[dt]}")
 
-#-----/reminder_list コマンド-----
+#=====/reminder_list コマンド=====
 @bot.tree.command(name="reminder_list", description="リマインダーの一覧を表示します")
 async def reminder_list(interaction: discord.Interaction):
     # 空のリストを作成
@@ -295,7 +295,7 @@ async def reminder_list(interaction: discord.Interaction):
     else:
         await interaction.response.send_message("リマインダーは設定されていません")
 
-#-----/reminder_delete コマンド-----
+#=====/reminder_delete コマンド=====
 @bot.tree.command(name="reminder_delete", description="リマインダー一覧を表示します")
 async def reminder_delete(interaction: discord.Interaction):
     # リマインダーが設定されている場合、選択メニューを表示
@@ -306,7 +306,7 @@ async def reminder_delete(interaction: discord.Interaction):
     else:
         await interaction.response.send_message("リマインダーは設定されていません")
 
-#-----/poll コマンド-----
+#=====/poll コマンド=====
 @bot.tree.command(name="poll", description="投票を作成します")
 @app_commands.describe(
     question="質問",
