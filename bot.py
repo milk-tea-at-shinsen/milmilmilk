@@ -86,15 +86,13 @@ def add_reminder(dt, repeat, interval, channel_id, msg):
     save_reminders()
 
 #---投票---
-def add_poll(msg_id, question):
-    # メッセージIDが辞書になければ辞書に行を追加
-    if msg_id not in polls:
-        polls[msg_id] = []
+def add_poll(msg_id, question, options):
     # 辞書に項目を登録
-    polls[msg_id].append(
-        {"msg_id": msg_id,
-         "question": question}
-    )
+    polls[msg_id] = {
+        "question": question,
+        "options": options
+    }
+
     # json保存前処理
     save_polls()
 
@@ -137,6 +135,22 @@ def remove_poll(msg_id):
         print(f"削除対象の投票がありません")
         return None
 
+#=====UI選択後の処理=====
+#---リマインダー削除---
+async def handle_remove_reminder(interaction, dt, idx):
+        removed = remove_reminder(dt, idx)
+
+        # 削除完了メッセージの送信
+        await interaction.message.edit(
+            content=f"リマインダーを削除: {dt.strftime('%Y/%m/%d %H:%M')} - {removed['msg']}",
+            allowed_mentions=discord.AllowedMentions.none(),
+            view=None
+        )
+
+#---投票集計---
+async def show_poll_result(interaction, msg_id):
+    message = await interaction.channel.fetch_message(msg_id)
+
 #=====通知用ループ処理=====
 async def reminder_loop():
     await bot.wait_until_ready()
@@ -178,6 +192,7 @@ async def reminder_loop():
 #===============
 # クラス定義
 #===============
+#=====リマインダー選択UIクラス=====
 class ReminderSelect(View):
     # クラスの初期設定
     def __init__(self, reminders_dict):
@@ -185,13 +200,18 @@ class ReminderSelect(View):
         # remindersプロパティにreminders_dictをセット
         self.reminders = reminders_dict
         
-        #削除選択リストの定義
+        #選択リストの定義
         options = []
+        # リマインダー辞書から日時と項目を分離
         for dt, values in reminders_dict.items():
+            # 同一日時内の項目区別用インデックスを作成
             for index, v in enumerate(values, start=1):
                 msg = v["msg"]
+                # 選択肢に表示される項目を設定
                 label = f"{dt.strftime('%Y/%m/%d %H:%M')} - {msg[:50]}"
+                # 選択時に格納される値を設定
                 value = f"{dt.isoformat()}|{index}"
+                # optionsリストに表示項目と値を格納
                 options.append(discord.SelectOption(label=label, value=value))
         
         #selectUIの定義
@@ -206,19 +226,50 @@ class ReminderSelect(View):
     # 削除処理の関数定義
     async def select_callback(self, interaction: discord.Interaction):
         value = interaction.data["values"][0]
+        # 日時とインデックスを分離
         dt_str, idx_str = value.split("|")
         dt = datetime.fromisoformat(dt_str)
         idx = int(idx_str)
 
         # 予定の削除
-        removed = remove_reminder(dt, idx)
+        handle_remove_reminder(interaction, dt, idx)
 
-        # 削除完了メッセージの送信
-        await interaction.message.edit(
-            content=f"リマインダーを削除: {dt.strftime('%Y/%m/%d %H:%M')} - {removed['msg']}",
-            allowed_mentions=discord.AllowedMentions.none(),
-            view=None
-        )
+#=====投票選択UIクラス=====
+class PollSelect(View):
+    # クラスの初期設定
+    def __init__(self, polls_dict):
+        super().__init__()
+        # pollsプロパティにpolls_dictをセット
+        self.polls = polls_dict
+        
+        #選択リストの定義
+        options = []
+        # 投票辞書からメッセージidと項目を分離
+        for msg_id, v in polls_dict.items():
+            question = v["question"]
+            # 選択肢に表示される項目を設定
+            label = f"{question[:50]}"
+            # 選択時に格納される値を設定
+            value = f"{msg_id}"
+            # optionsリストに表示項目と値を格納
+            options.append(discord.SelectOption(label=label, value=value))
+        
+        #selectUIの定義
+        if options:
+            select = Select(
+                placeholder="集計する投票を選択",
+                options = options
+            )
+            select.callback = self.select_callback
+            self.add_item(select)
+    
+    # 集計処理の関数定義
+    async def select_callback(self, interaction: discord.Interaction):
+        msg_id_str = interaction.data["values"][0]
+        msg_id = int(msg_id_str)
+
+        # 集計処理
+        show_poll_result(interaction, msg_id)
 
 #====================
 # イベントハンドラ
@@ -353,6 +404,9 @@ async def poll(interaction: discord.Interaction,
     for i, opt in enumerate(options):
         if opt:
             await message.add_reaction(reactions[i])
+    
+    # 辞書に保存
+    add_poll(msg_id, question, options)
 
 # Botを起動
 bot.run(os.getenv("DISCORD_TOKEN"))
