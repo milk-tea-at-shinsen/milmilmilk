@@ -39,7 +39,7 @@ if data_raw:
     reminders = {datetime.fromisoformat(key): value for key, value in data_raw.items()}
 else:
     reminders = {}
-    export_data(reminders)
+    export_data(reminders, "reminders")
 
 # 投票辞書
 data_raw = load_data("polls")
@@ -47,7 +47,7 @@ if data_raw:
     polls = {int(key): value for key, value in data_raw.items()}
 else:
     polls = {}
-    export_data(polls)
+    export_data(polls, "polls")
 
 #===============
 # 共通処理関数
@@ -76,7 +76,7 @@ def add_reminder(dt, repeat, interval, channel_id, msg):
          "channel_id": channel_id,
          "msg": msg}
     )
-    export_reminders()
+    export_reminders(reminders, "reminders")
 
 # -----リマインダーの削除-----
 def remove_reminder(dt, idx=None):
