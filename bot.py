@@ -23,9 +23,9 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 #=====辞書読込共通処理=====
 def load_data(data):
     # reminders.jsonが存在すれば
-    if os.path.exists(f"/mnt/{data}/{data}.json"):
+    if os.path.exists(f"/mnt/data/{data}.json"):
         #fileオブジェクト変数に格納
-        with open(f"/mnt/{data}/{data}.json", "r", encoding = "utf-8") as file:
+        with open(f"/mnt/data/{data}.json", "r", encoding = "utf-8") as file:
             print(f"辞書ファイルを読込完了: {datetime.now()} - {data}")
             return json.load(file)
     else:
@@ -53,9 +53,9 @@ else:
 #=====辞書をjsonファイルに保存=====
 def export_data(data: dict, name: str):
     # 指定ディレクトリがなければ作成する
-    os.makedirs(f"/mnt/{name}", exist_ok=True)
+    os.makedirs(f"/mnt/data", exist_ok=True)
     #jsonファイルを開く（存在しなければ作成する）
-    with open(f"/mnt/{name}/{name}.json", "w", encoding = "utf-8") as file:
+    with open(f"/mnt/data/{name}.json", "w", encoding = "utf-8") as file:
         # jsonファイルを保存
         json.dump(data, file, ensure_ascii=False, indent=2) 
     print(f"辞書ファイルを保存完了: {datetime.now()} - {name}")
