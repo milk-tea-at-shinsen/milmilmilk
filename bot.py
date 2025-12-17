@@ -148,8 +148,44 @@ async def handle_remove_reminder(interaction, dt, idx):
         )
 
 #---投票集計---
-async def show_poll_result(interaction, msg_id):
+async def make_poll_result(interaction, msg_id):
+    # 投票辞書を読み込み
+    options = polls[msg_id]["options"]
+    # メッセージを読み込み
     message = await interaction.channel.fetch_message(msg_id)
+    # 結果用辞書を準備
+    result = {}
+    # 結果用辞書に結果を記録
+    for i, reaction in enumerate(message.reactions()):
+        users = []
+        async for user in reaction.users():
+            if user != bot.user:
+                users.append(user.mention)
+        result[i] = {"emoji": reaction.emoji, "option":options[i], "count":len(users), "users":users}
+
+    return result
+
+#---投票結果表示---
+async def show_poll_result(interaction, result, msg_id):
+    # Embedで出力
+    embed = discord.Embed(
+        title=polls[msg_id]["question"],
+        description="投票結果",
+        color=discord.Color.green()
+    )
+    for i in result:
+        emoji = result[i]["emoji"]
+        option = result[i]["option"]
+        count = result[i]["count"]
+        users = result[i]["users"]
+        user_list = ", ".join(users) if users else "なし"
+        embed.add_field(name=f"{emoji} {option} - {count}人", value=f"メンバー: {user_list}", inline=False)
+    
+    await interaction.message.edit(
+        embed=embed,
+        allowed_mentions=discord.AllowedMentions.none(),
+        view=None
+    )
 
 #=====通知用ループ処理=====
 async def reminder_loop():
@@ -265,11 +301,11 @@ class PollSelect(View):
     
     # 集計処理の関数定義
     async def select_callback(self, interaction: discord.Interaction):
-        msg_id_str = interaction.data["values"][0]
-        msg_id = int(msg_id_str)
+        msg_id = int(interaction.data["values"][0])
 
         # 集計処理
-        result = make_poll_result(interaction, msg_id)
+        result = await make_poll_result(interaction, msg_id)
+        await show_poll_result(interaction, result, msg_id)
 
 #====================
 # イベントハンドラ
