@@ -156,7 +156,7 @@ async def make_poll_result(interaction, msg_id):
     # 結果用辞書を準備
     result = {}
     # 結果用辞書に結果を記録
-    for i, reaction in enumerate(message.reactions()):
+    for i, reaction in enumerate(message.reactions):
         users = []
         async for user in reaction.users():
             if user != bot.user:
