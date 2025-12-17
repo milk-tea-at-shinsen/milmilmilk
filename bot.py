@@ -269,7 +269,7 @@ class PollSelect(View):
         msg_id = int(msg_id_str)
 
         # 集計処理
-        show_poll_result(interaction, msg_id)
+        result = make_poll_result(interaction, msg_id)
 
 #====================
 # イベントハンドラ
@@ -407,6 +407,18 @@ async def poll(interaction: discord.Interaction,
     
     # 辞書に保存
     add_poll(msg_id, question, options)
+
+#=====/show_result コマンド=====
+@bot.tree.command(name="show_result", description="投票結果を表示します")
+async def show_result(interaction: discord.Interaction):
+    if polls:
+        view = PollSelect(polls)
+        await interaction.response.send_message("結果表示する投票を選択", view=view)
+
+    # 投票がない場合のメッセージ
+    else:
+        await interaction.response.send_message("投票がありません")
+
 
 # Botを起動
 bot.run(os.getenv("DISCORD_TOKEN"))
