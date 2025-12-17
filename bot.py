@@ -446,7 +446,7 @@ async def poll(interaction: discord.Interaction,
     for i, opt in enumerate(options):
         if opt:
             description += f"{reactions[i]} {opt}\n"
-    embed = discord.Embed(title=question, description=description, color=discord.Color.blue())
+    embed = discord.Embed(title=question, description=description, color=discord.Color.green())
     await interaction.response.send_message(embed=embed)
     
     # リアクションを追加
