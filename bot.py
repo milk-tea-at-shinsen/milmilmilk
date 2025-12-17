@@ -168,12 +168,13 @@ async def make_poll_result(interaction, msg_id):
 
 #---投票結果表示---
 async def show_poll_result(interaction, result, msg_id):
-    # Embedで出力
+    # Embedの設定
     embed = discord.Embed(
         title=polls[msg_id]["question"],
         description="投票結果",
         color=discord.Color.green()
     )
+    # 投票結果からフィールドを作成
     for i in result:
         emoji = result[i]["emoji"]
         option = result[i]["option"]
@@ -181,13 +182,19 @@ async def show_poll_result(interaction, result, msg_id):
         users = result[i]["users"]
         user_list = ", ".join(users) if users else "なし"
         embed.add_field(name=f"{emoji} {option} - {count}人", value=f"メンバー: {user_list}", inline=False)
-    
+    # embedを表示
     await interaction.message.edit(
         content="投票結果",
         embed=embed,
         allowed_mentions=discord.AllowedMentions.none(),
         view=None
     )
+    
+    # 削除確認
+    await interaction.response.send_message("投票を締め切りますか？(今回が最終の集計となります)")
+    message = await interaction.original_message()
+    await message.add_reaction("⭕️","❌")
+    
 
 #=====通知用ループ処理=====
 async def reminder_loop():
