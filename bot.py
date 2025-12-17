@@ -442,7 +442,7 @@ async def poll(interaction: discord.Interaction,
             await message.add_reaction(reactions[i])
     
     # 辞書に保存
-    add_poll(msg_id, question, options)
+    add_poll(message.id, question, options)
 
 #=====/show_result コマンド=====
 @bot.tree.command(name="show_result", description="投票結果を表示します")
