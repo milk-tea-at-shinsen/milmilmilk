@@ -275,7 +275,7 @@ class ReminderSelect(View):
 #=====投票選択UIクラス=====
 class PollSelect(View):
     # クラスの初期設定
-    def __init__(self, polls, mode)
+    def __init__(self, polls, mode):
         super().__init__()
         # pollsプロパティに投票辞書をセット
         self.polls = polls
