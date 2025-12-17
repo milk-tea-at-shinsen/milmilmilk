@@ -462,7 +462,7 @@ async def poll(interaction: discord.Interaction,
 @bot.tree.command(name="show_result", description="投票結果を表示します")
 async def show_result(interaction: discord.Interaction):
     if polls:
-        view = PollSelect(polls, mode=PollMode.SHOW_RESULT)
+        view = PollSelect(polls, PollMode.SHOW_RESULT)
         await interaction.response.send_message("結果表示する投票を選択", view=view)
 
     # 投票がない場合のメッセージ
