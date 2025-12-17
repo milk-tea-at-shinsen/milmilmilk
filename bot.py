@@ -191,8 +191,7 @@ async def show_poll_result(interaction, result, msg_id):
     )
     
     # 削除確認
-    await interaction.response.send_message("投票を締め切りますか？(今回が最終の集計となります)")
-    message = await interaction.original_response()
+    message = await interaction.response.send_message("投票を締め切りますか？(今回が最終の集計となります)")
     await message.add_reaction("⭕️","❌")
     
 
