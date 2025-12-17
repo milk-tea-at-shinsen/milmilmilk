@@ -182,6 +182,7 @@ async def show_poll_result(interaction, result, msg_id):
         embed.add_field(name=f"{emoji} {option} - {count}人", value=f"メンバー: {user_list}", inline=False)
     
     await interaction.message.edit(
+        content="投票結果",
         embed=embed,
         allowed_mentions=discord.AllowedMentions.none(),
         view=None
