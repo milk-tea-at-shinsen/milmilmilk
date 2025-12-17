@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 import os
 import json
 import emoji
+from enum import Enum
 
 # Botの準備
 intents = discord.Intents.default()
@@ -232,15 +233,15 @@ async def reminder_loop():
 #=====リマインダー選択UIクラス=====
 class ReminderSelect(View):
     # クラスの初期設定
-    def __init__(self, reminders_dict):
+    def __init__(self, reminders):
         super().__init__()
-        # remindersプロパティにreminders_dictをセット
-        self.reminders = reminders_dict
+        # remindersプロパティにリマインダー辞書をセット
+        self.reminders = reminders
         
         #選択リストの定義
         options = []
         # リマインダー辞書から日時と項目を分離
-        for dt, values in reminders_dict.items():
+        for dt, values in reminders.items():
             # 同一日時内の項目区別用インデックスを作成
             for index, v in enumerate(values, start=1):
                 msg = v["msg"]
@@ -274,15 +275,17 @@ class ReminderSelect(View):
 #=====投票選択UIクラス=====
 class PollSelect(View):
     # クラスの初期設定
-    def __init__(self, polls_dict):
+    def __init__(self, polls, mode)
         super().__init__()
-        # pollsプロパティにpolls_dictをセット
-        self.polls = polls_dict
-        
+        # pollsプロパティに投票辞書をセット
+        self.polls = polls
+        # modeプロパティに投票モードをセット
+        self.mode = mode
+
         #選択リストの定義
         options = []
         # 投票辞書からメッセージidと項目を分離
-        for msg_id, v in polls_dict.items():
+        for msg_id, v in polls.items():
             question = v["question"]
             # 選択肢に表示される項目を設定
             label = f"{question[:50]}"
@@ -306,7 +309,17 @@ class PollSelect(View):
 
         # 集計処理
         result = await make_poll_result(interaction, msg_id)
-        await show_poll_result(interaction, result, msg_id)
+        
+        # モード別処理
+        if self.mode == PollMode.SHOW_RESULT:
+            # 結果表示処理
+            await show_poll_result(interaction, result, msg_id)            
+
+#=====投票モード切替クラス=====
+class PollMode(Enum):
+    SHOW_RESULT = "show_result"
+    EXPORT_CSV = "export_csv"
+    DELETE_POLL = "delete_poll"
 
 #====================
 # イベントハンドラ
@@ -449,7 +462,7 @@ async def poll(interaction: discord.Interaction,
 @bot.tree.command(name="show_result", description="投票結果を表示します")
 async def show_result(interaction: discord.Interaction):
     if polls:
-        view = PollSelect(polls)
+        view = PollSelect(polls, mode=PollMode.SHOW_RESULT)
         await interaction.response.send_message("結果表示する投票を選択", view=view)
 
     # 投票がない場合のメッセージ
