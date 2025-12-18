@@ -189,11 +189,6 @@ async def show_poll_result(interaction, result, msg_id):
         allowed_mentions=discord.AllowedMentions.none(),
         view=None
     )
-    
-    # 削除確認
-    message = await interaction.response.send_message("投票を締め切りますか？(今回が最終の集計となります)")
-    await message.add_reaction("⭕️","❌")
-    
 
 #=====通知用ループ処理=====
 async def reminder_loop():
