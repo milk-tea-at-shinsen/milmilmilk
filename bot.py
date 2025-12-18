@@ -319,7 +319,7 @@ class PollSelect(View):
         result = await make_poll_result(interaction, msg_id)
         
         # 結果表示処理
-        if self.mode == PoleResultMode.MID_RESULT:
+        if self.mode == PollResultMode.MID_RESULT:
             mode = "mid"
         else:
             mode = "final"
