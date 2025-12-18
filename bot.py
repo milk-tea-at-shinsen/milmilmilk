@@ -187,7 +187,7 @@ async def show_poll_result(interaction, result, msg_id, result_mode):
         mode = "中間集計"
     else:
         mode = "最終結果"
-    dt = datetime.now{}
+    dt = datetime.now()
     embed.set_footer(text=f"{mode} - {dt.strftime('%Y/%m/%d %H:%M')}")
     # embedを表示
     await interaction.message.edit(
