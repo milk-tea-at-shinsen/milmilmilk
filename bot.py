@@ -167,11 +167,11 @@ async def make_poll_result(interaction, msg_id):
     return result
 
 #---投票結果表示---
-async def show_poll_result(interaction, result, msg_id):
+async def show_poll_result(interaction, result, msg_id, result_mode):
     # Embedの設定
     embed = discord.Embed(
-        title=polls[msg_id]["question"],
-        description="投票結果",
+        title="投票結果",
+        description=polls[msg_id]["question"],
         color=discord.Color.green()
     )
     # 投票結果からフィールドを作成
@@ -182,9 +182,16 @@ async def show_poll_result(interaction, result, msg_id):
         users = result[i]["users"]
         user_list = ", ".join(users) if users else "なし"
         embed.add_field(name=f"{emoji} {option} - {count}人", value=f"メンバー: {user_list}", inline=False)
+    # フッター
+    if result_mode == "mid":
+        mode = "中間集計"
+    else:
+        mode = "最終結果"
+    dt = datetime.now{}
+    embed.set_footer(text=f"{mode} - {dt.strftime('%Y/%m/%d %H:%M')}")
     # embedを表示
     await interaction.message.edit(
-        content="投票結果",
+        content=None,
         embed=embed,
         allowed_mentions=discord.AllowedMentions.none(),
         view=None
@@ -312,7 +319,11 @@ class PollSelect(View):
         result = await make_poll_result(interaction, msg_id)
         
         # 結果表示処理
-        await show_poll_result(interaction, result, msg_id)
+        if self.mode == PoleResultMode.MID_RESULT:
+            mode = "mid"
+        else:
+            mode = "final"
+        await show_poll_result(interaction, result, msg_id, mode)
         
         # CSV作成処理
         # make_poll_csv(msg_id)
