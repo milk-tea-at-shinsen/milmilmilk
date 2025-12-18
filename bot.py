@@ -311,16 +311,21 @@ class PollSelect(View):
         # 集計処理
         result = await make_poll_result(interaction, msg_id)
         
-        # モード別処理
-        if self.mode == PollMode.SHOW_RESULT:
-            # 結果表示処理
-            await show_poll_result(interaction, result, msg_id)            
+        # 結果表示処理
+        await show_poll_result(interaction, result, msg_id)
+        
+        # CSV作成処理
+        # make_poll_csv(msg_id)
+        
+        # 投票辞書からの削除
+        if self.mode == PollResultMode.FINAL_RESULT:
+            remove_poll(msg_id)
+            
 
-#=====投票モード切替クラス=====
-class PollMode(Enum):
-    SHOW_RESULT = "show_result"
-    EXPORT_CSV = "export_csv"
-    DELETE_POLL = "delete_poll"
+#=====集計モード切替クラス=====
+class PollResultMode(Enum):
+    MID_RESULT = "mid_result"
+    FINAL_RESULT = "final_result"
 
 #====================
 # イベントハンドラ
@@ -459,17 +464,27 @@ async def poll(interaction: discord.Interaction,
     # 辞書に保存
     add_poll(message.id, question, options)
 
-#=====/show_result コマンド=====
-@bot.tree.command(name="show_result", description="投票結果を表示します")
-async def show_result(interaction: discord.Interaction):
+#=====/poll_result コマンド=====
+@bot.tree.command(name="poll_result", description="投票結果を表示します")
+@app_commands.describe(mode="集計モード")
+@app_commands.choices(mode=[
+    app_commands.Choice(name="中間集計", value="mid"),
+    app_commands.Choice(name="最終結果", value="final")
+])
+async def poll_result(interaction: discord.Interaction, mode: str):
     if polls:
-        view = PollSelect(polls, PollMode.SHOW_RESULT)
-        await interaction.response.send_message("結果表示する投票を選択", view=view)
+        if mode == "mid":
+            view = PollSelect(polls, PollResultMode.MID_RESULT)
+            await interaction.response.send_message("結果表示する投票を選択", view=view)
+        elif mode == "final":
+            view = PollSelect(polls, PollResultMode.FINAL_RESULT)
+            await interaction.response.send_message("結果表示する投票を選択", view=view)
+        else:
+            await interaction.response.send_message("集計モードの指定が不正です")
 
     # 投票がない場合のメッセージ
     else:
         await interaction.response.send_message("投票がありません")
-
 
 # Botを起動
 bot.run(os.getenv("DISCORD_TOKEN"))
