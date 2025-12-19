@@ -203,11 +203,11 @@ async def show_poll_result(interaction, dt, result, msg_id, result_mode):
     )
 
 #---投票結果CSV作成処理---
-def make_poll_csv():
+#def make_poll_csv():
     
 
 #---投票結果CSV出力処理---
-def export_poll_csv(interaction, result):
+#def export_poll_csv(interaction, result):
     
 
 #=====通知用ループ処理=====
