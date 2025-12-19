@@ -202,13 +202,36 @@ async def show_poll_result(interaction, dt, result, msg_id, result_mode):
         view=None
     )
 
+#---投票結果CSV作成処理(グループ)---
+def make_grouped_row(result):
+    options = []
+    rows = []
+    users = []
+    max_users = 0
+    
+    for i, value in result.items():
+        options.append(value["option"])
+        users.append(value["users"])
+        if len(value["users"]) > max_users:
+            max_users = len(value["users"])
+    
+    for i in range(max_users):
+        row = []
+        for j in range(len(options)):
+            if i < len(users[j]):
+                row.append(users[j][i])
+            else:
+                row.append("")
+        rows.append(row)
+    
+    return options, rows
+
 #---投票結果CSV作成処理---
-#def make_poll_csv():
+#def make_poll_csv(dt, question, options, rows):
     
 
 #---投票結果CSV出力処理---
-#def export_poll_csv(interaction, result):
-    
+#def export_poll_csv(interaction, dt, result, msg_id):
 
 #=====通知用ループ処理=====
 async def reminder_loop():
@@ -407,6 +430,7 @@ async def reminder_list(interaction: discord.Interaction):
     # remindersの中身を取り出してリストに格納
     for dt, value in reminders.items():
         dt_str = dt.strftime("%Y/%m/%d %H:%M")
+        # 同一日時の予定をrmd_dtに分解
         for rmd_dt in value:
             channel = bot.get_channel(rmd_dt["channel_id"])
             if channel:
