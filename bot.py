@@ -6,11 +6,12 @@ from discord import app_commands
 from discord.ext import commands
 from discord.ui import View, Select
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import os
 import json
 import emoji
 from enum import Enum
+import csv, io
 
 # Botの準備
 intents = discord.Intents.default()
@@ -20,13 +21,17 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 #===================================
 # 定数・グローバル変数・辞書の準備
 #===================================
+
+#=====タイムゾーンの指定=====
+JST = timezone(timedelta(hours=9), "JST")
+
 #=====辞書読込共通処理=====
 def load_data(data):
     # reminders.jsonが存在すれば
     if os.path.exists(f"/mnt/data/{data}.json"):
         #fileオブジェクト変数に格納
         with open(f"/mnt/data/{data}.json", "r", encoding = "utf-8") as file:
-            print(f"辞書ファイルを読込完了: {datetime.now()} - {data}")
+            print(f"辞書ファイルを読込完了: {datetime.now(JST)} - {data}")
             return json.load(file)
     else:
         #jsonが存在しない場合は、戻り値を空の辞書にする
@@ -58,7 +63,7 @@ def export_data(data: dict, name: str):
     with open(f"/mnt/data/{name}.json", "w", encoding = "utf-8") as file:
         # jsonファイルを保存
         json.dump(data, file, ensure_ascii=False, indent=2) 
-    print(f"辞書ファイルを保存完了: {datetime.now()} - {name}")
+    print(f"辞書ファイルを保存完了: {datetime.now(JST)} - {name}")
 
 #=====jsonファイル保存前処理=====
 #---リマインダー---
@@ -163,11 +168,11 @@ async def make_poll_result(interaction, msg_id):
             if user != bot.user:
                 users.append(user.mention)
         result[i] = {"emoji": reaction.emoji, "option":options[i], "count":len(users), "users":users}
-
-    return result
+    dt = datetime.now(JST)
+    return dt, result
 
 #---投票結果表示---
-async def show_poll_result(interaction, result, msg_id, result_mode):
+async def show_poll_result(interaction, dt, result, msg_id, result_mode):
     # Embedの設定
     embed = discord.Embed(
         title="投票結果",
@@ -187,8 +192,8 @@ async def show_poll_result(interaction, result, msg_id, result_mode):
         mode = "中間集計"
     else:
         mode = "最終結果"
-    dt = datetime.now()
-    embed.set_footer(text=f"{mode} - {dt.strftime('%Y/%m/%d %H:%M')}")
+
+    embed.set_footer(text=f"{mode} - {dt}")
     # embedを表示
     await interaction.message.edit(
         content=None,
@@ -197,12 +202,20 @@ async def show_poll_result(interaction, result, msg_id, result_mode):
         view=None
     )
 
+#---投票結果CSV作成処理---
+def make_poll_csv():
+    
+
+#---投票結果CSV出力処理---
+def export_poll_csv(interaction, result):
+    
+
 #=====通知用ループ処理=====
 async def reminder_loop():
     await bot.wait_until_ready()
     while not bot.is_closed():
         # 現在時刻を取得して次のゼロ秒までsleep
-        now = datetime.now()
+        now = datetime.now(JST)
         next_minute = (now + timedelta(minutes=1)).replace(second=0, microsecond=0)
         wait = (next_minute - now).total_seconds()
         await asyncio.sleep(wait)
@@ -218,7 +231,7 @@ async def reminder_loop():
                 channel = bot.get_channel(channel_id)
                 if channel:
                     await channel.send(f"{msg}")
-                    print (f"チャンネルにメッセージを送信: {datetime.now()}")
+                    print (f"チャンネルにメッセージを送信: {datetime.now(JST)}")
                 else:
                     print(f"チャンネル取得失敗: {channel_id}")
             
@@ -316,22 +329,21 @@ class PollSelect(View):
         msg_id = int(interaction.data["values"][0])
 
         # 集計処理
-        result = await make_poll_result(interaction, msg_id)
+        dt, result = await make_poll_result(interaction, msg_id)
         
         # 結果表示処理
         if self.mode == PollResultMode.MID_RESULT:
             mode = "mid"
         else:
             mode = "final"
-        await show_poll_result(interaction, result, msg_id, mode)
+        await show_poll_result(interaction, dt, result, msg_id, mode)
         
         # CSV作成処理
-        # make_poll_csv(msg_id)
+        # export_poll_csv(interaction, dt, result, msg_id)
         
         # 投票辞書からの削除
         if self.mode == PollResultMode.FINAL_RESULT:
             remove_poll(msg_id)
-            
 
 #=====集計モード切替クラス=====
 class PollResultMode(Enum):
@@ -349,7 +361,7 @@ async def on_ready():
     print(f"同期されたコマンド: {[cmd.name for cmd in synced]}")
     
     # リマインダーループの開始
-    print(f"ループ開始: {datetime.now()}")
+    print(f"ループ開始: {datetime.now(JST)}")
     bot.loop.create_task(reminder_loop())
 
 #===============
