@@ -192,7 +192,7 @@ async def show_poll_result(interaction, dt, result, msg_id, mode):
         mode_str = "中間集計"
     else:
         mode_str = "最終結果"
-    embed.set_footer(text=f"{mode_str} - {dt}")
+    embed.set_footer(text=f"{mode_str} - {dt.strftime('%Y%m%d %H:%M')}")
     # embedを表示
     await interaction.message.edit(
         content=None,
@@ -279,7 +279,7 @@ async def export_poll_csv(interaction, result, msg_id, dt, mode):
     
     # discordに送信
     await interaction.followup.send(
-        contents="集計結果CSV",
+        content="集計結果CSV",
         files=[discord.File(grouped_file), discord.File(listed_file)]
     )
 
