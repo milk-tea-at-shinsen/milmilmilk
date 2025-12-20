@@ -172,7 +172,7 @@ async def make_poll_result(interaction, msg_id):
     return dt, result
 
 #---投票結果表示---
-async def show_poll_result(interaction, dt, result, msg_id, result_mode):
+async def show_poll_result(interaction, dt, result, msg_id, mode):
     # Embedの設定
     embed = discord.Embed(
         title="投票結果",
@@ -188,11 +188,11 @@ async def show_poll_result(interaction, dt, result, msg_id, result_mode):
         user_list = ", ".join(users) if users else "なし"
         embed.add_field(name=f"{emoji} {option} - {count}人", value=f"メンバー: {user_list}", inline=False)
     # フッター
-    if result_mode == "mid":
-        mode = "中間集計"
+    if mode == "mid":
+        mode_str = "中間集計"
     else:
-        mode = "最終結果"
-    embed.set_footer(text=f"{mode} - {dt}")
+        mode_str = "最終結果"
+    embed.set_footer(text=f"{mode_str} - {dt}")
     # embedを表示
     await interaction.message.edit(
         content=None,
@@ -202,7 +202,7 @@ async def show_poll_result(interaction, dt, result, msg_id, result_mode):
     )
 
 #---投票結果rows作成処理(選択肢グループ)---
-def make_grouped_row(result):
+def make_grouped_rows(result):
     # 空のリストを用意
     header = []
     rows = []
@@ -237,7 +237,7 @@ def make_grouped_row(result):
     return header, rows
 
 #---投票結果rows作成処理(一覧)---
-def make_listed_row(result):
+def make_listed_rows(result):
     header = ["option", "users"]
     rows = []
     
@@ -248,12 +248,40 @@ def make_listed_row(result):
     return header, rows
 
 #---投票結果CSV作成処理---
-#def make_poll_csv(dt, question, options, rows):
-    
+def make_poll_csv(filename, meta, header, rows):
+    with open(filename, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        # metaの書込
+        for key, value in meta.items():
+            writer.writerow([f"#{key}: {value}"])
+        # headerの書込
+        writer.writerow(header)
+        # rowsの書込
+        writer.writerows(rows)
 
 #---投票結果CSV出力処理---
-#def export_poll_csv(interaction, dt, result, msg_id):
-
+async def export_poll_csv(interaction, result, msg_id, dt, mode):
+    meta = {
+        "question": polls[msg_id]["question"],
+        "status": mode,
+        "collected_at": dt.strftime("%Y/%m/%d %H:%M")
+    }
+    
+    # csv(グループ型)の作成
+    header, rows = make_grouped_rows(result)
+    grouped_file = f"/tmp/{dt.strftime('%Y%m%d_%H%M')}_grouped.csv"
+    make_poll_csv(grouped_file, meta, header, rows)
+    
+    # csv(リスト型)の作成
+    header, rows = make_listed_rows(result)
+    listed_file = f"/tmp/{dt.strftime('%Y%m%d_%H%M')}_listed.csv"
+    make_poll_csv(filename, meta, header, rows)
+    
+    # discordに送信
+    await interaction.followup.send(
+        contents="集計結果CSV",
+        files=[discord.File(grouped_file), discord.File(listed_file)]
+    )
 
 #=====通知用ループ処理=====
 async def reminder_loop():
@@ -384,7 +412,7 @@ class PollSelect(View):
         await show_poll_result(interaction, dt, result, msg_id, mode)
         
         # CSV作成処理
-        # export_poll_csv(interaction, dt, result, msg_id)
+        await export_poll_csv(interaction, result, msg_id, dt, mode)
         
         # 投票辞書からの削除
         if self.mode == PollResultMode.FINAL_RESULT:
