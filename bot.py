@@ -275,7 +275,7 @@ async def export_poll_csv(interaction, result, msg_id, dt, mode):
     # csv(リスト型)の作成
     header, rows = make_listed_rows(result)
     listed_file = f"/tmp/{dt.strftime('%Y%m%d_%H%M')}_listed.csv"
-    make_poll_csv(filename, meta, header, rows)
+    make_poll_csv(listed_file, meta, header, rows)
     
     # discordに送信
     await interaction.followup.send(
