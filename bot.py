@@ -192,7 +192,6 @@ async def show_poll_result(interaction, dt, result, msg_id, result_mode):
         mode = "中間集計"
     else:
         mode = "最終結果"
-
     embed.set_footer(text=f"{mode} - {dt}")
     # embedを表示
     await interaction.message.edit(
@@ -202,29 +201,51 @@ async def show_poll_result(interaction, dt, result, msg_id, result_mode):
         view=None
     )
 
-#---投票結果CSV作成処理(グループ)---
+#---投票結果rows作成処理(選択肢グループ)---
 def make_grouped_row(result):
-    options = []
+    # 空のリストを用意
+    header = []
     rows = []
     users = []
     max_users = 0
     
+    # 選択肢リストと選択肢ごとのユーザーリストを作成
+    # resultをキー(インデックス)と値に分離
     for i, value in result.items():
-        options.append(value["option"])
+        # 選択肢を連結
+        header.append(value["option"])
+        # 選択肢ごとの選択肢を連結
         users.append(value["users"])
+        # ユーザーの最大値を取得
         if len(value["users"]) > max_users:
             max_users = len(value["users"])
     
+    # ユーザーリストの行列を入れ替え
     for i in range(max_users):
+        # rowをリセット
         row = []
-        for j in range(len(options)):
+        # 各ユーザーリストの同番のユーザーをrowに並べる
+        for j in range(len(header)):
             if i < len(users[j]):
                 row.append(users[j][i])
+            # ユーザーリストを使い切っている場合は空欄を連結
             else:
                 row.append("")
+        # rowをまとめてrowsを作る
         rows.append(row)
     
-    return options, rows
+    return header, rows
+
+#---投票結果rows作成処理(一覧)---
+def make_listed_row(result):
+    header = ["option", "users"]
+    rows = []
+    
+    for i, value in result.items():
+        for user in value["users"]:
+            rows.append([value["option"], user])
+    
+    return header, rows
 
 #---投票結果CSV作成処理---
 #def make_poll_csv(dt, question, options, rows):
@@ -232,6 +253,7 @@ def make_grouped_row(result):
 
 #---投票結果CSV出力処理---
 #def export_poll_csv(interaction, dt, result, msg_id):
+
 
 #=====通知用ループ処理=====
 async def reminder_loop():
