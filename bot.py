@@ -131,6 +131,7 @@ def remove_reminder(dt, idx=None):
 
 #---投票---
 def remove_poll(msg_id):
+    print("[start: remove_poll]")
     if msg_id in polls:
         removed = polls[msg_id]
         del polls[msg_id]
@@ -155,6 +156,7 @@ async def handle_remove_reminder(interaction, dt, idx):
 
 #---投票集計---
 async def make_poll_result(interaction, msg_id):
+    print("[start: make_poll_result]")
     # 投票辞書を読み込み
     options = polls[msg_id]["options"]
     # メッセージを読み込み
@@ -173,6 +175,7 @@ async def make_poll_result(interaction, msg_id):
 
 #---投票結果表示---
 async def show_poll_result(interaction, dt, result, msg_id, mode):
+    print("[start: shoe_poll_result]")
     # Embedの設定
     embed = discord.Embed(
         title="投票結果",
@@ -203,6 +206,7 @@ async def show_poll_result(interaction, dt, result, msg_id, mode):
 
 #---投票結果rows作成処理(選択肢グループ)---
 def make_grouped_rows(result):
+    print("[start: make_grouprd_rows]")
     # 空のリストを用意
     header = []
     rows = []
@@ -238,6 +242,7 @@ def make_grouped_rows(result):
 
 #---投票結果rows作成処理(一覧)---
 def make_listed_rows(result):
+    print("[start: make_listed_rows]")
     header = ["option", "users"]
     rows = []
     
@@ -249,6 +254,7 @@ def make_listed_rows(result):
 
 #---投票結果CSV作成処理---
 def make_poll_csv(filename, meta, header, rows):
+    print("[start: make_poll_csv]")
     with open(filename, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         # metaの書込
@@ -261,6 +267,7 @@ def make_poll_csv(filename, meta, header, rows):
 
 #---投票結果CSV出力処理---
 async def export_poll_csv(interaction, result, msg_id, dt, mode):
+    print("[start: export_poll_csv]")
     meta = {
         "question": polls[msg_id]["question"],
         "status": mode,
@@ -278,7 +285,7 @@ async def export_poll_csv(interaction, result, msg_id, dt, mode):
     make_poll_csv(listed_file, meta, header, rows)
     
     # discordに送信
-    await interaction.followup.send(
+    await interaction.response.send_message(
         content="集計結果CSV",
         files=[discord.File(grouped_file), discord.File(listed_file)]
     )
