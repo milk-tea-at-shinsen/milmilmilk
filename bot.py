@@ -166,10 +166,18 @@ async def make_poll_result(interaction, msg_id):
     # 結果用辞書に結果を記録
     for i, reaction in enumerate(message.reactions):
         users = []
+        display_names = []
         async for user in reaction.users():
             if user != bot.user:
                 users.append(user.mention)
-        result[i] = {"emoji": reaction.emoji, "option":options[i], "count":len(users), "users":users}
+                display_names.append(user.display_name)
+        result[i] = {
+            "emoji": reaction.emoji,
+            "option":options[i],
+            "count":len(users),
+            "users":users,
+            "display_name": display_names
+        }
     dt = datetime.now(JST)
     return dt, result
 
@@ -219,7 +227,7 @@ def make_grouped_rows(result):
         # 選択肢を連結
         header.append(value["option"])
         # 選択肢ごとの選択肢を連結
-        users.append(value["users"])
+        users.append(value["display_names"])
         # ユーザーの最大値を取得
         if len(value["users"]) > max_users:
             max_users = len(value["users"])
@@ -247,7 +255,7 @@ def make_listed_rows(result):
     rows = []
     
     for i, value in result.items():
-        for user in value["users"]:
+        for user in value["display_names"]:
             rows.append([value["option"], user])
     
     return header, rows
