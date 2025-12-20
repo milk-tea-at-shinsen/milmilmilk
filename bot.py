@@ -175,7 +175,7 @@ async def make_poll_result(interaction, msg_id):
 
 #---投票結果表示---
 async def show_poll_result(interaction, dt, result, msg_id, mode):
-    print("[start: shoe_poll_result]")
+    print("[start: show_poll_result]")
     # Embedの設定
     embed = discord.Embed(
         title="投票結果",
@@ -195,7 +195,7 @@ async def show_poll_result(interaction, dt, result, msg_id, mode):
         mode_str = "中間集計"
     else:
         mode_str = "最終結果"
-    embed.set_footer(text=f"{mode_str} - {dt.strftime('%Y%m%d %H:%M')}")
+    embed.set_footer(text=f"{mode_str} - {dt.strftime('%Y/%m/%d %H:%M')}")
     # embedを表示
     await interaction.message.edit(
         content=None,
@@ -285,7 +285,7 @@ async def export_poll_csv(interaction, result, msg_id, dt, mode):
     make_poll_csv(listed_file, meta, header, rows)
     
     # discordに送信
-    await interaction.response.send_message(
+    await interaction.followup.send(
         content="集計結果CSV",
         files=[discord.File(grouped_file), discord.File(listed_file)]
     )
@@ -406,6 +406,7 @@ class PollSelect(View):
     
     # 集計処理の関数定義
     async def select_callback(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         msg_id = int(interaction.data["values"][0])
 
         # 集計処理
