@@ -176,7 +176,7 @@ async def make_poll_result(interaction, msg_id):
             "option":options[i],
             "count":len(users),
             "users":users,
-            "display_name": display_names
+            "display_names": display_names
         }
     dt = datetime.now(JST)
     return dt, result
@@ -227,7 +227,7 @@ def make_grouped_rows(result):
         # 選択肢を連結
         header.append(value["option"])
         # 選択肢ごとの選択肢を連結
-        if value.get("display_name") is None:
+        if value.get("display_names") is None:
             users.append(value["users"])
         else:
             users.append(value["display_names"])
