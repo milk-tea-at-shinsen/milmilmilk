@@ -382,7 +382,7 @@ class ReminderSelect(View):
         idx = int(idx_str)
 
         # 予定の削除
-        handle_remove_reminder(interaction, dt, idx)
+        await handle_remove_reminder(interaction, dt, idx)
 
 #=====投票選択UIクラス=====
 class PollSelect(View):
