@@ -609,7 +609,7 @@ async def export_members(interaction: discord.Interaction):
     await interaction.response.defer()
     guild = interaction.guild
     
-    filename = f"/tmp/{guild.name}_members_{datetime.now(JST).strftime('%Y%m%d_%H%M')}.csv"
+    filename = f"/tmp/{guild.id}_members_{datetime.now(JST).strftime('%Y%m%d_%H%M')}.csv"
     meta = {
         "members_at": guild.name,
         "collected_at": datetime.now(JST).strftime("%Y/%m/%d %H:%M")
