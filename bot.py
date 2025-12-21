@@ -476,7 +476,7 @@ async def on_ready():
 ])
 async def remind(interaction: discord.Interaction, date: str, time: str, msg: str, channel: discord.TextChannel = None, repeat: str = None, interval: int = 0):
     # 文字列引数からdatatime型に変換
-    dt = datetime.strptime(f"{date} {time}", "%Y/%m/%d %H:%M")
+    dt = datetime.strptime(f"{date} {time}", "%Y/%m/%d %H:%M").replace(tzinfo=JST)
 
     # チャンネルIDの取得
     if channel:
