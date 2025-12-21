@@ -608,12 +608,11 @@ async def poll_result(interaction: discord.Interaction, mode: str):
 async def export_members(interaction: discord.Interaction):
     await interaction.response.defer()
     guild = interaction.guild
-    dt_str = datetime.now(JST).strftime("%Y/%m/%d %H:%M")
     
-    filename = f"/tmp/{guild.name}_members_{dt_str}.csv"
+    filename = f"/tmp/{guild.name}_members_{datetime.now(JST).strftime('%Y%m%d_%H%M')}.csv"
     meta = {
         "members_at": guild.name,
-        "collected_at": dt_str
+        "collected_at": datetime.now(JST).strftime("%Y/%m/%d %H:%M")
     }
     header = ["user_id", "display_name"]
     rows = {}
