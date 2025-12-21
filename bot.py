@@ -47,11 +47,11 @@ else:
     reminders = {}
 
 #---投票辞書---
-data_raw = load_data("polls")
+data_raw = load_data("votes")
 if data_raw:
-    polls = {int(key): value for key, value in data_raw.items()}
+    votes = {int(key): value for key, value in data_raw.items()}
 else:
-    polls = {}
+    votes = {}
 
 #===============
 # 共通処理関数
@@ -73,8 +73,8 @@ def save_reminders():
     export_data(reminders_to_save, "reminders")
 
 #---投票---
-def save_polls():
-    export_data(polls, "polls")
+def save_votes():
+    export_data(votes, "votes")
 
 #=====辞書への登録処理=====
 #---リマインダー---
@@ -93,15 +93,15 @@ def add_reminder(dt, repeat, interval, channel_id, msg):
     save_reminders()
 
 #---投票---
-def add_poll(msg_id, question, options):
+def add_vote(msg_id, question, options):
     # 辞書に項目を登録
-    polls[msg_id] = {
+    votes[msg_id] = {
         "question": question,
         "options": options
     }
 
     # json保存前処理
-    save_polls()
+    save_votes()
 
 #=====辞書からの削除処理=====
 #---リマインダー---
@@ -131,12 +131,12 @@ def remove_reminder(dt, idx=None):
             return None
 
 #---投票---
-def remove_poll(msg_id):
-    print("[start: remove_poll]")
-    if msg_id in polls:
-        removed = polls[msg_id]
-        del polls[msg_id]
-        save_polls()
+def remove_vote(msg_id):
+    print("[start: remove_vote]")
+    if msg_id in votes:
+        removed = votes[msg_id]
+        del votes[msg_id]
+        save_votes()
         print(f"投票を削除: {removed['question']}")
         return removed
     else:
@@ -156,10 +156,10 @@ async def handle_remove_reminder(interaction, dt, idx):
         )
 
 #---投票集計---
-async def make_poll_result(interaction, msg_id):
-    print("[start: make_poll_result]")
+async def make_vote_result(interaction, msg_id):
+    print("[start: make_vote_result]")
     # 投票辞書を読み込み
-    options = polls[msg_id]["options"]
+    options = votes[msg_id]["options"]
     # メッセージを読み込み
     message = await interaction.channel.fetch_message(msg_id)
     # 結果用辞書を準備
@@ -183,12 +183,12 @@ async def make_poll_result(interaction, msg_id):
     return dt, result
 
 #---投票結果表示---
-async def show_poll_result(interaction, dt, result, msg_id, mode):
-    print("[start: show_poll_result]")
+async def show_vote_result(interaction, dt, result, msg_id, mode):
+    print("[start: show_vote_result]")
     # Embedの設定
     embed = discord.Embed(
         title="投票結果",
-        description=polls[msg_id]["question"],
+        description=votes[msg_id]["question"],
         color=discord.Color.green()
     )
     # 投票結果からフィールドを作成
@@ -278,10 +278,10 @@ def make_csv(filename, meta, header, rows):
         writer.writerows(rows)
 
 #---投票結果CSV出力処理---
-async def export_poll_csv(interaction, result, msg_id, dt, mode):
-    print("[start: export_poll_csv]")
+async def export_vote_csv(interaction, result, msg_id, dt, mode):
+    print("[start: export_vote_csv]")
     meta = {
-        "question": polls[msg_id]["question"],
+        "question": votes[msg_id]["question"],
         "status": mode,
         "collected_at": dt.strftime("%Y/%m/%d %H:%M")
     }
@@ -386,19 +386,19 @@ class ReminderSelect(View):
         await handle_remove_reminder(interaction, dt, idx)
 
 #=====投票選択UIクラス=====
-class PollSelect(View):
+class VoteSelect(View):
     # クラスの初期設定
-    def __init__(self, polls, mode):
+    def __init__(self, votes, mode):
         super().__init__()
-        # pollsプロパティに投票辞書をセット
-        self.polls = polls
+        # votesプロパティに投票辞書をセット
+        self.votes = votes
         # modeプロパティに投票モードをセット
         self.mode = mode
 
         #選択リストの定義
         options = []
         # 投票辞書からメッセージidと項目を分離
-        for msg_id, v in polls.items():
+        for msg_id, v in votes.items():
             question = v["question"]
             # 選択肢に表示される項目を設定
             label = f"{question[:50]}"
@@ -422,24 +422,24 @@ class PollSelect(View):
         msg_id = int(interaction.data["values"][0])
 
         # 集計処理
-        dt, result = await make_poll_result(interaction, msg_id)
+        dt, result = await make_vote_result(interaction, msg_id)
         
         # 結果表示処理
-        if self.mode == PollResultMode.MID_RESULT:
+        if self.mode == VoteSelectMode.MID_RESULT:
             mode = "mid"
         else:
             mode = "final"
-        await show_poll_result(interaction, dt, result, msg_id, mode)
+        await show_vote_result(interaction, dt, result, msg_id, mode)
         
         # CSV作成処理
-        await export_poll_csv(interaction, result, msg_id, dt, mode)
+        await export_vote_csv(interaction, result, msg_id, dt, mode)
         
         # 投票辞書からの削除
-        if self.mode == PollResultMode.FINAL_RESULT:
-            remove_poll(msg_id)
+        if self.mode == VoteSelectMode.FINAL_RESULT:
+            remove_vote(msg_id)
 
 #=====集計モード切替クラス=====
-class PollResultMode(Enum):
+class VoteSelectMode(Enum):
     MID_RESULT = "mid_result"
     FINAL_RESULT = "final_result"
 
@@ -530,8 +530,8 @@ async def reminder_delete(interaction: discord.Interaction):
     else:
         await interaction.response.send_message("リマインダーは設定されていません")
 
-#=====/poll コマンド=====
-@bot.tree.command(name="poll", description="投票を作成します")
+#=====/vote コマンド=====
+@bot.tree.command(name="vote", description="投票を作成します")
 @app_commands.describe(
     question="質問",
     opt_1="選択肢1",
@@ -545,7 +545,7 @@ async def reminder_delete(interaction: discord.Interaction):
     opt_9="選択肢9",
     opt_10="選択肢10",
 )
-async def poll(interaction: discord.Interaction,
+async def vote(interaction: discord.Interaction,
      question: str, opt_1: str, opt_2: str=None, opt_3: str=None, opt_4: str=None, opt_5: str=None,
      opt_6: str=None, opt_7: str=None, opt_8: str=None, opt_9: str=None, opt_10: str=None): 
     # 選択肢をリストに格納
@@ -579,22 +579,22 @@ async def poll(interaction: discord.Interaction,
             await message.add_reaction(reactions[i])
     
     # 辞書に保存
-    add_poll(message.id, question, options)
+    add_vote(message.id, question, options)
 
-#=====/poll_result コマンド=====
-@bot.tree.command(name="poll_result", description="投票結果を表示します")
+#=====/vote_result コマンド=====
+@bot.tree.command(name="vote_result", description="投票結果を表示します")
 @app_commands.describe(mode="集計モード")
 @app_commands.choices(mode=[
     app_commands.Choice(name="中間集計", value="mid"),
     app_commands.Choice(name="最終結果", value="final")
 ])
-async def poll_result(interaction: discord.Interaction, mode: str):
-    if polls:
+async def vote_result(interaction: discord.Interaction, mode: str):
+    if votes:
         if mode == "mid":
-            view = PollSelect(polls, PollResultMode.MID_RESULT)
+            view = VoteSelect(votes, VoteSelectMode.MID_RESULT)
             await interaction.response.send_message("結果表示する投票を選択", view=view)
         elif mode == "final":
-            view = PollSelect(polls, PollResultMode.FINAL_RESULT)
+            view = VoteSelect(votes, VoteSelectMode.FINAL_RESULT)
             await interaction.response.send_message("結果表示する投票を選択", view=view)
         else:
             await interaction.response.send_message("集計モードの指定が不正です")
