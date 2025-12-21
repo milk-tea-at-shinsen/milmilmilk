@@ -615,10 +615,10 @@ async def export_members(interaction: discord.Interaction):
         "collected_at": datetime.now(JST).strftime("%Y/%m/%d %H:%M")
     }
     header = ["user_id", "display_name"]
-    rows = {}
+    rows = []
     
     async for member in guild.fetch_members(limit=None):
-        rows[member.id] = {"display_name": member.display_name}
+        rows.append([member.id, member.display_name])
     
     make_csv(filename, meta, header, rows)
     
