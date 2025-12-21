@@ -227,7 +227,10 @@ def make_grouped_rows(result):
         # 選択肢を連結
         header.append(value["option"])
         # 選択肢ごとの選択肢を連結
-        users.append(value["display_names"])
+        if value.get("display_name") is None:
+            users.append(value["users"])
+        else:
+            users.append(value["display_names"])
         # ユーザーの最大値を取得
         if len(value["users"]) > max_users:
             max_users = len(value["users"])
