@@ -627,5 +627,6 @@ async def export_members(interaction: discord.Interaction):
         content="メンバー一覧CSV",
         file=discord.File(filename)
     )
+    
 # Botを起動
 bot.run(os.getenv("DISCORD_TOKEN"))
