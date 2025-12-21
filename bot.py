@@ -618,7 +618,7 @@ async def export_members(interaction: discord.Interaction):
     header = ["user_id", "display_name"]
     rows = {}
     
-    async for member in guild.fetch_members(limit=None)
+    async for member in guild.fetch_members(limit=None):
         rows[member.id] = {"display_name": member.display_name}
     
     make_csv(filename, meta, header, rows)
