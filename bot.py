@@ -53,6 +53,13 @@ if data_raw:
 else:
     votes = {}
 
+#---代理投票辞書---
+data_raw = load_data("proxy_votes")
+if data_raw:
+    proxy_votes = {int(key): value for key, value in data_raw.items()}
+else:
+    proxy_votes = {}
+
 #===============
 # 共通処理関数
 #===============
@@ -76,6 +83,10 @@ def save_reminders():
 def save_votes():
     export_data(votes, "votes")
 
+#---投票---
+def save_proxy_votes():
+    export_data(proxy_votes, "proxy_votes")
+    
 #=====辞書への登録処理=====
 #---リマインダー---
 def add_reminder(dt, repeat, interval, channel_id, msg):
@@ -103,6 +114,18 @@ def add_vote(msg_id, question, reactions, options):
 
     # json保存前処理
     save_votes()
+
+#---代理投票---
+def add_proxy_votes(msg_id, voter, agent, opt_idx):
+    # 辞書に項目を登録
+    proxy_votes[msg_id] = {
+        "voter": voter,
+        "agent": agent,
+        "opt_idx": opt_idx
+    }
+
+    # json保存前処理
+    save_proxy_votes()
 
 #=====辞書からの削除処理=====
 #---リマインダー---
@@ -142,6 +165,19 @@ def remove_vote(msg_id):
         return removed
     else:
         print(f"削除対象の投票がありません")
+        return None
+        
+#---代理投票---
+def remove_proxy_vote(msg_id):
+    print("[start: remove_proxy_vote]")
+    if msg_id in proxy_votes:
+        removed = proxy_votes[msg_id]
+        del proxy_votes[msg_id]
+        save_proxy_votes()
+        print(f"代理投票を削除: {removed['question']}")
+        return removed
+    else:
+        print(f"削除対象の代理投票がありません")
         return None
 
 #=====UI選択後の処理=====
@@ -473,11 +509,12 @@ class VoteOptionSelect(View):
         #選択リストの定義
         options = []
         # 投票辞書からメッセージidと項目を分離
-        for reaction, option in zip(votes[msg_id]["reactions"], votes[msg_id]["options"]):
+        for i, reaction, option in enumerate(zip(votes[msg_id]["reactions"], votes[msg_id]["options"])):
             # 選択肢に表示される項目を設定
             label = f"{reaction} {option[:50]}"
             # 選択時に格納される値を設定
-            value = option
+            value = str(i)
+            
             # optionsリストに表示項目と値を格納
             options.append(discord.SelectOption(label=label, value=value))
         
@@ -490,11 +527,12 @@ class VoteOptionSelect(View):
             select.callback = self.select_callback
             self.add_item(select)
 
-    # 集計処理の関数定義
+    # 選択肢選択後の関数定義
     async def select_callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
-
-
+        opt_idx = interaction.data["values"]
+        
+        add_proxy_votes(self.msg_id, self.voter, self.agent, opt_idx)
 
 #=====集計モード切替クラス=====
 class VoteSelectMode(Enum):
