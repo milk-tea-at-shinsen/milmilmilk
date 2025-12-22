@@ -478,7 +478,7 @@ class VoteSelect(View):
             # 代理投票処理
             await interaction.response.defer()
             view = VoteOptionSelect(msg_id, self.voter, self.agent)
-            await interaction.response.send_message("代理投票する選択肢を選択", view=view)
+            await interaction.followup.send("代理投票する選択肢を選択", view=view)
 
         else:
             # 集計処理
