@@ -117,12 +117,17 @@ def add_vote(msg_id, question, reactions, options):
 
 #---代理投票---
 def add_proxy_votes(msg_id, voter, agent, opt_idx):
+    print("[start: add_proxy_votes]")
+    # msg_idが辞書になければ辞書に行を追加
+    if msg_id not in proxy_votes:
+        proxy_votes[msg_id] = []
+    
     # 辞書に項目を登録
-    proxy_votes[msg_id] = {
-        "voter": voter,
-        "agent": agent,
-        "opt_idx": opt_idx
-    }
+    proxy_votes[msg_id].append(
+        {"voter": voter,
+         "agent": agent,
+         "opt_idx": opt_idx}
+    )
 
     # json保存前処理
     save_proxy_votes()
