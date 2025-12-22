@@ -522,15 +522,15 @@ class VoteOptionSelect(View):
             value = str(i)
             
             # optionsリストに表示項目と値を格納
-            options.append(discord.SelectOption(label=label, value=value))
-        
-        # questionの取得
-        question = votes[msg_id]["question"]
+            if option != "":
+                options.append(discord.SelectOption(label=label, value=value))
         
         # selectUIの定義
         if options:
             select = Select(
-                placeholder=f"{question[:30]} - 代理投票する選択肢を選択",
+                placeholder="代理投票する選択肢を選択",
+                min_values = 1,
+                max_values = len(options),
                 options = options
             )
             select.callback = self.select_callback
@@ -712,8 +712,9 @@ async def vote_result(interaction: discord.Interaction, mode: str):
 #=====/proxy_vote コマンド=====
 @bot.tree.command(name="proxy_vote", description="代理投票を行います")
 @app_commands.describe(voter = "投票者名")
-async def proxy_vote(interaction: discord.Interaction, voter: str, agent: str):
+async def proxy_vote(interaction: discord.Interaction, voter: str):
     if votes:
+        agent = interaction.user.display_name
         view = VoteSelect(votes=votes, mode=VoteSelectMode.PROXY_VOTE, voter=voter, agent=agent)
         await interaction.response.send_message("代理投票する投票を選択", view=view)
     else:
