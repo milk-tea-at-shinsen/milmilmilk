@@ -476,7 +476,6 @@ class VoteSelect(View):
         # 代理投票と集計で処理を分岐
         if self.mode == VoteSelectMode.PROXY_VOTE:
             # 代理投票処理
-            await interaction.response.defer()
             view = VoteOptionSelect(msg_id, self.voter, self.agent)
             await interaction.followup.send("代理投票する選択肢を選択", view=view)
 
