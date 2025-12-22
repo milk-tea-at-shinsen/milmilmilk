@@ -93,10 +93,11 @@ def add_reminder(dt, repeat, interval, channel_id, msg):
     save_reminders()
 
 #---投票---
-def add_vote(msg_id, question, options):
+def add_vote(msg_id, question, reactions, options):
     # 辞書に項目を登録
     votes[msg_id] = {
         "question": question,
+        "reactions": reactions,
         "options": options
     }
 
@@ -388,12 +389,16 @@ class ReminderSelect(View):
 #=====投票選択UIクラス=====
 class VoteSelect(View):
     # クラスの初期設定
-    def __init__(self, votes, mode):
+    def __init__(self, votes, mode, voter=None, agent=None):
         super().__init__()
         # votesプロパティに投票辞書をセット
         self.votes = votes
         # modeプロパティに投票モードをセット
         self.mode = mode
+        # voterプロパティに投票者名をセット
+        self.voter = voter
+        # agentプロパティに代理人名をセット
+        self.agent = agent
 
         #選択リストの定義
         options = []
@@ -409,10 +414,16 @@ class VoteSelect(View):
         
         #selectUIの定義
         if options:
-            select = Select(
-                placeholder="集計する投票を選択",
-                options = options
-            )
+            if mode == VoteSelectMode.PROXY_VOTE:
+                select = Select(
+                    placeholder="代理投票する投票を選択",
+                    options = options
+                )
+            else:
+                select = Select(
+                    placeholder="集計する投票を選択",
+                    options = options
+                )
             select.callback = self.select_callback
             self.add_item(select)
     
@@ -421,27 +432,75 @@ class VoteSelect(View):
         await interaction.response.defer()
         msg_id = int(interaction.data["values"][0])
 
-        # 集計処理
-        dt, result = await make_vote_result(interaction, msg_id)
-        
-        # 結果表示処理
-        if self.mode == VoteSelectMode.MID_RESULT:
-            mode = "mid"
+        # 代理投票と集計で処理を分岐
+        if self.mode == VoteSelectMode.PROXY_VOTE:
+            # 代理投票処理
+            view = VoteOptionSelect(msg_id, self.voter, self.agent)
+            await interaction.response.send_message("代理投票する選択肢を選択", view=view)
+
         else:
-            mode = "final"
-        await show_vote_result(interaction, dt, result, msg_id, mode)
+            # 集計処理
+            dt, result = await make_vote_result(interaction, msg_id)
+            
+            # 結果表示処理
+            if self.mode == VoteSelectMode.MID_RESULT:
+                mode = "mid"
+            else:
+                mode = "final"
+            await show_vote_result(interaction, dt, result, msg_id, mode)
+            
+            # CSV作成処理
+            await export_vote_csv(interaction, result, msg_id, dt, mode)
+            
+            # 投票辞書からの削除
+            if self.mode == VoteSelectMode.FINAL_RESULT:
+                remove_vote(msg_id)
+
+#=====投票選択肢選択UIクラス=====
+class VoteOptionSelect(View):
+    # クラスの初期設定
+    def __init__(self, msg_id, voter, agent):
+        super().__init__()
+        # votesプロパティに投票辞書をセット
+        self.votes = votes
+        # msg_idプロパティにメッセージIDをセット
+        self.msg_id = msg_id
+        # voterプロパティに投票者名をセット
+        self.voter = voter
+        # agentプロパティに代理人名をセット
+        self.agent = agent
+
+        #選択リストの定義
+        options = []
+        # 投票辞書からメッセージidと項目を分離
+        for reaction, option in zip(votes[msg_id]["reactions"], votes[msg_id]["options"]):
+            # 選択肢に表示される項目を設定
+            label = f"{reaction} {option[:50]}"
+            # 選択時に格納される値を設定
+            value = option
+            # optionsリストに表示項目と値を格納
+            options.append(discord.SelectOption(label=label, value=value))
         
-        # CSV作成処理
-        await export_vote_csv(interaction, result, msg_id, dt, mode)
-        
-        # 投票辞書からの削除
-        if self.mode == VoteSelectMode.FINAL_RESULT:
-            remove_vote(msg_id)
+        #selectUIの定義
+        if options:
+            select = Select(
+                placeholder=f"{question[:30]} - 代理投票する選択肢を選択",
+                options = options
+            )
+            select.callback = self.select_callback
+            self.add_item(select)
+
+    # 集計処理の関数定義
+    async def select_callback(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+
+
 
 #=====集計モード切替クラス=====
 class VoteSelectMode(Enum):
     MID_RESULT = "mid_result"
     FINAL_RESULT = "final_result"
+    PROXY_VOTE = "proxy_vote"
 
 #====================
 # イベントハンドラ
@@ -579,7 +638,7 @@ async def vote(interaction: discord.Interaction,
             await message.add_reaction(reactions[i])
     
     # 辞書に保存
-    add_vote(message.id, question, options)
+    add_vote(message.id, question, reactions, options)
 
 #=====/vote_result コマンド=====
 @bot.tree.command(name="vote_result", description="投票結果を表示します")
@@ -591,15 +650,25 @@ async def vote(interaction: discord.Interaction,
 async def vote_result(interaction: discord.Interaction, mode: str):
     if votes:
         if mode == "mid":
-            view = VoteSelect(votes, VoteSelectMode.MID_RESULT)
+            view = VoteSelect(votes=votes, mode=VoteSelectMode.MID_RESULT, voter=None, agent=None)
             await interaction.response.send_message("結果表示する投票を選択", view=view)
         elif mode == "final":
-            view = VoteSelect(votes, VoteSelectMode.FINAL_RESULT)
+            view = VoteSelect(votes=votes, mode=VoteSelectMode.FINAL_RESULT, voter=None, agent=None)
             await interaction.response.send_message("結果表示する投票を選択", view=view)
         else:
             await interaction.response.send_message("集計モードの指定が不正です")
 
     # 投票がない場合のメッセージ
+    else:
+        await interaction.response.send_message("投票がありません")
+
+#=====/proxy_vote コマンド=====
+@bot.tree.command(name="proxy_vote", description="代理投票を行います")
+@app_commands.describe(voter = "投票者名")
+async def proxy_vote(interaction: discord.Interaction, voter: str, agent: str):
+    if votes:
+        view = VoteSelect(votes=votes, mode=VoteSelectMode.PROXY_VOTE, voter=voter, agent=agent)
+        await interaction.response.send_message("代理投票する投票を選択", view=view)
     else:
         await interaction.response.send_message("投票がありません")
 
