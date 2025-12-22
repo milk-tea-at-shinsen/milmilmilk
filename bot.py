@@ -463,7 +463,7 @@ class VoteSelect(View):
             select.callback = self.select_callback
             self.add_item(select)
     
-    # 集計処理の関数定義
+    # 投票選択後処理の関数定義
     async def select_callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
         msg_id = int(interaction.data["values"][0])
@@ -509,7 +509,7 @@ class VoteOptionSelect(View):
         #選択リストの定義
         options = []
         # 投票辞書からメッセージidと項目を分離
-        for i, reaction, option in enumerate(zip(votes[msg_id]["reactions"], votes[msg_id]["options"])):
+        for i, (reaction, option) in enumerate(zip(votes[msg_id]["reactions"], votes[msg_id]["options"])):
             # 選択肢に表示される項目を設定
             label = f"{reaction} {option[:50]}"
             # 選択時に格納される値を設定
@@ -518,7 +518,10 @@ class VoteOptionSelect(View):
             # optionsリストに表示項目と値を格納
             options.append(discord.SelectOption(label=label, value=value))
         
-        #selectUIの定義
+        # questionの取得
+        question = votes[msg_id]["question"]
+        
+        # selectUIの定義
         if options:
             select = Select(
                 placeholder=f"{question[:30]} - 代理投票する選択肢を選択",
