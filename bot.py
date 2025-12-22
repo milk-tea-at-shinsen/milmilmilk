@@ -514,7 +514,8 @@ class VoteOptionSelect(View):
         #選択リストの定義
         options = []
         # 投票辞書からメッセージidと項目を分離
-        for i, (reaction, option) in enumerate(zip(votes[msg_id]["reactions"], votes[msg_id]["options"])):
+        for i, (reaction, opt) in enumerate(zip(votes[msg_id]["reactions"], votes[msg_id]["options"])):
+            option = opt or ""
             # 選択肢に表示される項目を設定
             label = f"{reaction} {option[:50]}"
             # 選択時に格納される値を設定
