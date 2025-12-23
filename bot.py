@@ -566,6 +566,7 @@ class VoteOptionSelect(View):
             opt_idx.append(int(opt_str))
         
         add_proxy_votes(self.msg_id, self.voter, self.agent, opt_idx)
+        interaction.followup.send(f"代理投票を受け付けました - {self.voter} by{agent}")
 
 #=====集計モード切替クラス=====
 class VoteSelectMode(Enum):
