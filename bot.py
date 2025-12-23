@@ -568,7 +568,7 @@ class VoteOptionSelect(View):
         
         opt_idx = []
         for opt_str in interaction.data["values"]:
-            opt_idx.append(ind(opt_str))
+            opt_idx.append(int(opt_str))
         
         add_proxy_votes(self.msg_id, self.voter, self.agent, opt_idx)
 
