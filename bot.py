@@ -213,12 +213,6 @@ async def make_vote_result(interaction, msg_id):
     # メッセージを読み込み
     message = await interaction.channel.fetch_message(msg_id)
 
-    # 代理投票辞書を読み込み
-    if msg_id in proxy_votes:
-        proxy_vote = proxy_votes[msg_id]
-    else:
-        proxy_vote = {}
-
     # 結果用辞書を準備
     result = {}
     # 結果用辞書に結果を記録
@@ -234,8 +228,8 @@ async def make_vote_result(interaction, msg_id):
         
         # 代理投票分
         if msg_id in proxy_votes:
-            print("msg_id in proxy_vote, OK")
-            for voter, values in proxy_vote[msg_id]:
+            print("msg_id in proxy_votes, OK")
+            for voter, values in proxy_votes[mag_id]:
                 print(f"voter:{voter}, values:{values}")
                 for opt_idx in values["opt_idx"]:
                     print(f"opt_idx:{opt_idx}, i:{i}")
