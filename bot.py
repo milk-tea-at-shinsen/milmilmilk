@@ -131,12 +131,10 @@ def add_proxy_votes(msg_id, voter, agent, opt_idx):
         proxy_votes[msg_id] = {}
     
     # 辞書に項目を登録
-    proxy_votes[msg_id].append(
-        {voter:
-            {"agent": agent,
-             "opt_idx": opt_idx}
-        }
-    )
+    proxy_votes[msg_id][voter] = {
+        "agent": agent,
+        "opt_idx": opt_idx
+    }
 
     # json保存前処理
     save_proxy_votes()
