@@ -45,6 +45,7 @@ if data_raw:
     reminders = {datetime.fromisoformat(key): value for key, value in data_raw.items()}
 else:
     reminders = {}
+print(reminders)
 
 #---投票辞書---
 data_raw = load_data("votes")
@@ -52,6 +53,7 @@ if data_raw:
     votes = {int(key): value for key, value in data_raw.items()}
 else:
     votes = {}
+print(votes)
 
 #---代理投票辞書---
 data_raw = load_data("proxy_votes")
@@ -63,6 +65,8 @@ if data_raw:
         proxy_votes = data_raw
 else:
     proxy_votes = {}
+print(proxy_votes)
+
 
 #===============
 # 共通処理関数
@@ -215,12 +219,6 @@ async def make_vote_result(interaction, msg_id):
         proxy_vote = proxy_votes[msg_id]
     else:
         proxy_vote = {}
-
-    print("=== votes ===")
-    print(json.dumps(votes, indent=2, ensure_ascii=False))
-
-    print("=== proxy_votes ===")
-    print(json.dumps(proxy_votes, indent=2, ensure_ascii=False))
 
     # 結果用辞書を準備
     result = {}
