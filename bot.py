@@ -655,7 +655,7 @@ async def reminder_list(interaction: discord.Interaction):
         await interaction.response.send_message("リマインダーは設定されていません")
 
 #=====/reminder_delete コマンド=====
-@bot.tree.command(name="reminder_delete", description="リマインダー一覧を表示します")
+@bot.tree.command(name="reminder_delete", description="リマインダーを削除します")
 async def reminder_delete(interaction: discord.Interaction):
     # リマインダーが設定されている場合、選択メニューを表示
     if reminders:
