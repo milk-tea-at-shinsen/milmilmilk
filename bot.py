@@ -62,7 +62,7 @@ if data_raw:
     if "option" in values:
         proxy_votes = {}
     else:
-        proxy_votes = data_raw
+        proxy_votes = {int(key): value for key, value in data_raw.items()}
 else:
     proxy_votes = {}
 print(proxy_votes)
