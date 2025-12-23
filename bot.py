@@ -216,11 +216,11 @@ async def make_vote_result(interaction, msg_id):
     else:
         proxy_vote = {}
 
-print("=== votes ===")
-print(json.dumps(votes, indent=2, ensure_ascii=False))
+    print("=== votes ===")
+    print(json.dumps(votes, indent=2, ensure_ascii=False))
 
-print("=== proxy_votes ===")
-print(json.dumps(proxy_votes, indent=2, ensure_ascii=False))
+    print("=== proxy_votes ===")
+    print(json.dumps(proxy_votes, indent=2, ensure_ascii=False))
 
     # 結果用辞書を準備
     result = {}
