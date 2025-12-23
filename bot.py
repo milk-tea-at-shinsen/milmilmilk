@@ -45,7 +45,7 @@ if data_raw:
     reminders = {datetime.fromisoformat(key): value for key, value in data_raw.items()}
 else:
     reminders = {}
-print(reminders)
+print(f"dict reminders: {reminders}")
 
 #---投票辞書---
 data_raw = load_data("votes")
@@ -53,7 +53,7 @@ if data_raw:
     votes = {int(key): value for key, value in data_raw.items()}
 else:
     votes = {}
-print(votes)
+print(f"dict votes: {votes}")
 
 #---代理投票辞書---
 data_raw = load_data("proxy_votes")
@@ -65,7 +65,7 @@ if data_raw:
         proxy_votes = {int(key): value for key, value in data_raw.items()}
 else:
     proxy_votes = {}
-print(proxy_votes)
+print(f"dict proxy_votes: {proxy_votes}")
 
 
 #===============
@@ -138,7 +138,6 @@ def add_proxy_votes(msg_id, voter, agent, opt_idx):
 
     # json保存前処理
     save_proxy_votes()
-print(proxy_votes)
 
 #=====辞書からの削除処理=====
 #---リマインダー---
@@ -228,14 +227,10 @@ async def make_vote_result(interaction, msg_id):
         
         # 代理投票分
         if msg_id in proxy_votes:
-            print("msg_id in proxy_votes, OK")
             for voter, values in proxy_votes[msg_id].items():
-                print(f"voter:{voter}, values:{values}")
                 for opt_idx in values["opt_idx"]:
-                    print(f"opt_idx:{opt_idx}, i:{i}")
                     if opt_idx == i:
                         agent = values["agent"]
-                        print(f"agent:{agent}")
                         users.append(f"{voter}(by{agent})")
                         display_names.append(f"{voter}(by{agent})")
             
