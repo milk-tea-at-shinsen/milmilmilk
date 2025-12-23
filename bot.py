@@ -234,10 +234,14 @@ async def make_vote_result(interaction, msg_id):
         
         # 代理投票分
         if msg_id in proxy_vote:
+            print("msg_id in proxy_vote, OK")
             for voter, values in proxy_vote[msg_id]:
+                print(f"voter:{voter}, values:{values}")
                 for opt_idx in values["opt_idx"]:
+                    print(f"opt_idx:{opt_idx}, i:{i}")
                     if opt_idx == i:
                         agent = values["agent"]
+                        print(f"agent:{agent}")
                         users.append(f"{voter}(by{agent})")
                         display_names.append(f"{voter}(by{agent})")
             
