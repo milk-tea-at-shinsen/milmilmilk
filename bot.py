@@ -128,7 +128,7 @@ def add_proxy_votes(msg_id, voter, agent, opt_idx):
     print("[start: add_proxy_votes]")
     # msg_idが辞書になければ辞書に行を追加
     if msg_id not in proxy_votes:
-        proxy_votes[msg_id] = []
+        proxy_votes[msg_id] = {}
     
     # 辞書に項目を登録
     proxy_votes[msg_id].append(
