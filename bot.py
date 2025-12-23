@@ -138,6 +138,7 @@ def add_proxy_votes(msg_id, voter, agent, opt_idx):
 
     # json保存前処理
     save_proxy_votes()
+print(proxy_votes)
 
 #=====辞書からの削除処理=====
 #---リマインダー---
