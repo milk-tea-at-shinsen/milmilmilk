@@ -565,7 +565,7 @@ class VoteOptionSelect(View):
     # 選択肢選択後の関数定義
     async def select_callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
-        opt_idx = interaction.data["values"]
+        opt_idx = int(interaction.data["values"])
         
         add_proxy_votes(self.msg_id, self.voter, self.agent, opt_idx)
 
