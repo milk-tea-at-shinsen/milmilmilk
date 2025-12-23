@@ -229,7 +229,7 @@ async def make_vote_result(interaction, msg_id):
         # 代理投票分
         if msg_id in proxy_votes:
             print("msg_id in proxy_votes, OK")
-            for voter, values in proxy_votes[msg_id]:
+            for voter, values in proxy_votes[msg_id].items():
                 print(f"voter:{voter}, values:{values}")
                 for opt_idx in values["opt_idx"]:
                     print(f"opt_idx:{opt_idx}, i:{i}")
