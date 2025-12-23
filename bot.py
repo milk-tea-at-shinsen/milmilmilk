@@ -233,7 +233,7 @@ async def make_vote_result(interaction, msg_id):
                 display_names.append(user.display_name)
         
         # 代理投票分
-        if msg_id in proxy_vote:
+        if msg_id in proxy_votes:
             print("msg_id in proxy_vote, OK")
             for voter, values in proxy_vote[msg_id]:
                 print(f"voter:{voter}, values:{values}")
