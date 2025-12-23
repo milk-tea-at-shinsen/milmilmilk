@@ -521,6 +521,7 @@ class VoteSelect(View):
             # 投票辞書からの削除
             if self.mode == VoteSelectMode.FINAL_RESULT:
                 remove_vote(msg_id)
+                remove_proxy_vote(msg_id)
 
 #=====投票選択肢選択UIクラス=====
 class VoteOptionSelect(View):
