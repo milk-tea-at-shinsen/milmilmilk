@@ -56,7 +56,7 @@ else:
 #---代理投票辞書---
 data_raw = load_data("proxy_votes")
 if data_raw:
-    msg_id, values = next(iter(data_raw))
+    msg_id, values = next(iter(data_raw.items()))
     if "option" in values:
         proxy_votes = {}
     else:
