@@ -56,7 +56,11 @@ else:
 #---代理投票辞書---
 data_raw = load_data("proxy_votes")
 if data_raw:
-    proxy_votes = {int(key): value for key, value in data_raw.items()}
+    msg_id, values = next(iter(data_raw))
+    if "option" in values:
+        proxy_votes = {}
+    else:
+        proxy_votes = data_raw
 else:
     proxy_votes = {}
 
@@ -125,8 +129,9 @@ def add_proxy_votes(msg_id, voter, agent, opt_idx):
     # 辞書に項目を登録
     proxy_votes[msg_id].append(
         {"voter": voter,
-         "agent": agent,
-         "opt_idx": opt_idx}
+            {"agent": agent,
+             "opt_idx": opt_idx}
+        }
     )
 
     # json保存前処理
@@ -204,21 +209,40 @@ async def make_vote_result(interaction, msg_id):
     options = votes[msg_id]["options"]
     # メッセージを読み込み
     message = await interaction.channel.fetch_message(msg_id)
+
+    # 代理投票辞書を読み込み
+    if msg_id in proxy_votes:
+        proxy_vote = proxy_votes[msg_id]
+    else:
+        proxy_vote = {}
+        
     # 結果用辞書を準備
     result = {}
     # 結果用辞書に結果を記録
     for i, reaction in enumerate(message.reactions):
         users = []
         display_names = []
+        
+        # リアクション投票分
         async for user in reaction.users():
             if user != bot.user:
                 users.append(user.mention)
                 display_names.append(user.display_name)
+        
+        # 代理投票分
+        if msg_id in proxy_vote:
+            for voter, values in proxy_vote[msg_id]:
+                for opt_idx in values["opt_idx"]:
+                    if opt_idx == i:
+                        agent = values["agent"]
+                        users.append(f"{voter}(by{agent})")
+                        display_names.append(f"{voter}(by{agent})")
+            
         result[i] = {
             "emoji": reaction.emoji,
-            "option":options[i],
-            "count":len(users),
-            "users":users,
+            "option": options[i],
+            "count": len(users),
+            "users": users,
             "display_names": display_names
         }
     dt = datetime.now(JST)
