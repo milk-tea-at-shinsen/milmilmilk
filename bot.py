@@ -529,7 +529,7 @@ class VoteSelect(View):
         elif self.mode == VoteSelectMode.CANCEL_PROXY_VOTE:
             removed = cancel_proxy_vote(msg_id, self.voter, self.agent_id)
             if removed:
-                await interaction.followup.send(f"*{self.voter}* の分の代理投票を取り消したよ(\*`･ω･)ゞ")
+                await interaction.followup.send(f"**{self.voter}** の分の代理投票を取り消したよ(\*`･ω･)ゞ")
             else:
                 await interaction.followup.send(f"取り消せる代理投票がないみたい(´･ω･`)")
         else:
