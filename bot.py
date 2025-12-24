@@ -529,7 +529,7 @@ class VoteSelect(View):
         elif self.mode == VoteSelectMode.CANCEL_PROXY_VOTE:
             removed = cancel_proxy_vote(msg_id, self.voter, self.agent_id)
             if removed:
-                await interaction.followup.send(f"{self.voter}の代理投票を取り消したよ(\*`･ω･)ゞ")
+                await interaction.followup.send(f"*{self.voter}* の分の代理投票を取り消したよ(\*`･ω･)ゞ")
             else:
                 await interaction.followup.send(f"取り消せる代理投票がないみたい(´･ω･`)")
         else:
@@ -602,7 +602,7 @@ class VoteOptionSelect(View):
         add_proxy_votes(self.msg_id, self.voter, self.agent_id, opt_idx)
         agent = guild.get_member(self.agent_id)
         agent_display_name = agent.display_name
-        await interaction.followup.send(f"{agent_display_name}から{self.voter}の分の投票を受け付けたよ(\*`･ω･)ゞ")
+        await interaction.followup.send(f"*{agent_display_name}* から *{self.voter}* の分の投票を受け付けたよ(\*`･ω･)ゞ")
 
 #=====集計モード切替クラス=====
 class VoteSelectMode(Enum):
@@ -656,7 +656,7 @@ async def remind(interaction: discord.Interaction, date: str, time: str, msg: st
     # add_reminder関数に渡す
     add_reminder(dt, repeat, interval, channel_id, msg)
 
-    await interaction.response.send_message(f"{dt.strftime('%Y/%m/%d %H:%M')} にリマインダーをセットしたよ(\*`･ω･)ゞ")
+    await interaction.response.send_message(f"*{dt.strftime('%Y/%m/%d %H:%M')}* にリマインダーをセットしたよ(\*`･ω･)ゞ")
     print(f"予定を追加: {reminders[dt]}")
 
 #=====/reminder_list コマンド=====
