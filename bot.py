@@ -12,12 +12,19 @@ import json
 import emoji
 from enum import Enum
 import csv, io
+from google.cloud import vision
+from google.oauth2 import service_account
 
 # Botの準備
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 bot = commands.Bot(command_prefix="!", intents=intents)
+
+# サービスアカウントキーの読込
+info = json.loads(os.environ["GOOGLE_APPLICATION_CREDENTIALS_JSON"]
+credentials = service_account.credentials.from_service_account_info(info)
+client = vision.ImageAnnotatorClient(credentials=credentials)
 
 #===================================
 # 定数・グローバル変数・辞書の準備
