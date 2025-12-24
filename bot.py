@@ -198,7 +198,6 @@ def cancel_proxy_vote(msg_id, voter, agent_id):
     if msg_id in proxy_votes:
         for key, value in proxy_votes[msg_id].items():
             if (key, value["agent_id"]) == (voter, agent_id):
-                print("key:{key}, value['agent_id']:{value['agent_id']}, voter:{voter}, agent_id:{agent_id}")
                 removed = proxy_votes[msg_id][voter]
                 del proxy_votes[msg_id][voter]
                 print(f"{voter}の代理投票({msg_id})をキャンセルしました")
@@ -528,8 +527,11 @@ class VoteSelect(View):
             await interaction.followup.send("代理投票する選択肢を選択", view=view)
         # 代理投票キャンセル
         elif self.mode == VoteSelectMode.CANCEL_PROXY_VOTE:
-            cancel_proxy_vote(msg_id, self.voter, self.agent_id)
-            await interaction.followup.send(f"{self.voter}の代理投票をキャンセルしました")
+            removed = cancel_proxy_vote(msg_id, self.voter, self.agent_id)
+            if removed:
+                await interaction.followup.send(f"{self.voter}の代理投票をキャンセルしました")
+            else:
+                await interaction.followup.send(f"キャンセル可能な代理投票がありません")
         else:
             # 集計処理
             dt, result = await make_vote_result(interaction, msg_id)
