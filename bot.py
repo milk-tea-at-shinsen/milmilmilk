@@ -581,7 +581,7 @@ class VoteOptionSelect(View):
         add_proxy_votes(self.msg_id, self.voter, self.agent_id, opt_idx)
         agent = guild.get_member(self.agent_id)
         agent_display_name = agent.display_name
-        interaction.followup.send(f"代理投票を受け付けました - {self.voter} by{agent_display_name}")
+        await interaction.followup.send(f"代理投票を受け付けました - {self.voter} by{agent_display_name}")
 
 #=====集計モード切替クラス=====
 class VoteSelectMode(Enum):
