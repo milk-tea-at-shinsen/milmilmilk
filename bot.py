@@ -186,11 +186,25 @@ def remove_proxy_vote(msg_id):
         removed = proxy_votes[msg_id]
         del proxy_votes[msg_id]
         save_proxy_votes()
-        print(f"代理投票を削除: {removed['question']}")
+        print(f"代理投票({msg_id})を削除しました")
         return removed
     else:
         print(f"削除対象の代理投票がありません")
         return None
+
+#---代理投票(個別投票キャンセル)---
+def cancel_proxy_vote(msg_id, voter, agent_id):
+    print("[start: cancel_proxy_vote]")
+    if msg_id in proxy_vote:
+        for key, value in proxy_vote[msg_id]:
+            if (key, value["agent_id"]) == (voter, agent_id):
+                removed = proxy_votes[msg_id][voter]
+                del proxy_votes[msg_id][voter]
+                print(f"{voter}の代理投票({msg_id})をキャンセルしました")
+                return removed
+            else:
+                print(f"キャンセル対象の代理投票がありません")
+                return None
 
 #=====UI選択後の処理=====
 #---リマインダー削除---
@@ -511,7 +525,10 @@ class VoteSelect(View):
             # 代理投票処理
             view = VoteOptionSelect(msg_id, self.voter, self.agent_id)
             await interaction.followup.send("代理投票する選択肢を選択", view=view)
-
+        # 代理投票キャンセル
+        elif self.mode == VoteSelectMode.CANCEL_PROXY_VOTE:
+            cancel_proxy_vote(msg_id, self.voter, self.agent_id)
+            interaction.followup.send(f"{voter}の代理投票をキャンセルしました")
         else:
             # 集計処理
             dt, result = await make_vote_result(interaction, msg_id)
@@ -589,6 +606,7 @@ class VoteSelectMode(Enum):
     MID_RESULT = "mid_result"
     FINAL_RESULT = "final_result"
     PROXY_VOTE = "proxy_vote"
+    CANCEL_PROXY_VOTE = "cancel_proxy_vote"
 
 #====================
 # イベントハンドラ
@@ -758,6 +776,17 @@ async def proxy_vote(interaction: discord.Interaction, voter: str):
         agent_id = interaction.user.id
         view = VoteSelect(votes=votes, mode=VoteSelectMode.PROXY_VOTE, voter=voter, agent_id=agent_id)
         await interaction.response.send_message("代理投票する投票を選択", view=view)
+    else:
+        await interaction.response.send_message("投票がありません")
+
+#=====/cancel_proxy_vote コマンド=====
+@bot.tree.command(name="cancel_proxy_vote", description="代理投票をキャンセルします")
+@app_commands.describe(voter = "投票者名")
+async def cancel_proxy_vote(interaction: discord.Interaction, voter: str):
+    if votes:
+        agent_id = interaction.user.id
+        view = VoteSelect(votes=votes, mode=VoteSelectMode.CANCEL_PROXY_VOTE, voter=voter, agent_id=agent_id)
+        await interaction.response.send_message("キャンセルする代理投票を選択", view=view)
     else:
         await interaction.response.send_message("投票がありません")
 
