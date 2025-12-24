@@ -124,7 +124,7 @@ def add_vote(msg_id, question, reactions, options):
     save_votes()
 
 #---代理投票---
-def add_proxy_votes(msg_id, voter, agent, opt_idx):
+def add_proxy_votes(msg_id, voter, agent_id, opt_idx):
     print("[start: add_proxy_votes]")
     # msg_idが辞書になければ辞書に行を追加
     if msg_id not in proxy_votes:
@@ -132,7 +132,7 @@ def add_proxy_votes(msg_id, voter, agent, opt_idx):
     
     # 辞書に項目を登録
     proxy_votes[msg_id][voter] = {
-        "agent": agent,
+        "agent_id": agent_id,
         "opt_idx": opt_idx
     }
 
@@ -230,9 +230,20 @@ async def make_vote_result(interaction, msg_id):
             for voter, values in proxy_votes[msg_id].items():
                 for opt_idx in values["opt_idx"]:
                     if opt_idx == i:
-                        agent = values["agent"]
-                        users.append(f"{voter}(by{agent})")
-                        display_names.append(f"{voter}(by{agent})")
+                        agent_id = values["agent_id"]
+                        agent = guild.get_member(agent_id)
+                        if agent is None:
+                            try:
+                                agent = await guild.fetch_member(agent_id)
+                            except:
+                                agent = None
+                        if agent:
+                            agent_display_name = agent.display_name
+                        else:
+                            agent_display_name = "None"
+                        
+                        users.append(f"{voter}(by{agent_display_name})")
+                        display_names.append(f"{voter}(by{agent_display_name})")
             
         result[i] = {
             "emoji": reaction.emoji,
@@ -450,7 +461,7 @@ class ReminderSelect(View):
 #=====投票選択UIクラス=====
 class VoteSelect(View):
     # クラスの初期設定
-    def __init__(self, votes, mode, voter=None, agent=None):
+    def __init__(self, votes, mode, voter=None, agent_id=None):
         super().__init__()
         # votesプロパティに投票辞書をセット
         self.votes = votes
@@ -458,8 +469,8 @@ class VoteSelect(View):
         self.mode = mode
         # voterプロパティに投票者名をセット
         self.voter = voter
-        # agentプロパティに代理人名をセット
-        self.agent = agent
+        # agentプロパティに代理人をセット
+        self.agent_id = agent_id
 
         #選択リストの定義
         options = []
@@ -521,7 +532,7 @@ class VoteSelect(View):
 #=====投票選択肢選択UIクラス=====
 class VoteOptionSelect(View):
     # クラスの初期設定
-    def __init__(self, msg_id, voter, agent):
+    def __init__(self, msg_id, voter, agent_id):
         super().__init__()
         # votesプロパティに投票辞書をセット
         self.votes = votes
@@ -529,8 +540,8 @@ class VoteOptionSelect(View):
         self.msg_id = msg_id
         # voterプロパティに投票者名をセット
         self.voter = voter
-        # agentプロパティに代理人名をセット
-        self.agent = agent
+        # agentプロパティに代理人をセット
+        self.agent_id = agent_id
 
         #選択リストの定義
         options = []
@@ -565,8 +576,10 @@ class VoteOptionSelect(View):
         for opt_str in interaction.data["values"]:
             opt_idx.append(int(opt_str))
         
-        add_proxy_votes(self.msg_id, self.voter, self.agent, opt_idx)
-        interaction.followup.send(f"代理投票を受け付けました - {self.voter} by{agent}")
+        add_proxy_votes(self.msg_id, self.voter, self.agent_id, opt_idx)
+        agent = guild.get_member(self.agent_id)
+        agent_display_name = agent.display_name
+        interaction.followup.send(f"代理投票を受け付けました - {self.voter} by{agent_display_name}")
 
 #=====集計モード切替クラス=====
 class VoteSelectMode(Enum):
@@ -739,8 +752,8 @@ async def vote_result(interaction: discord.Interaction, mode: str):
 @app_commands.describe(voter = "投票者名")
 async def proxy_vote(interaction: discord.Interaction, voter: str):
     if votes:
-        agent = interaction.user.display_name
-        view = VoteSelect(votes=votes, mode=VoteSelectMode.PROXY_VOTE, voter=voter, agent=agent)
+        agent = interaction.user.id
+        view = VoteSelect(votes=votes, mode=VoteSelectMode.PROXY_VOTE, voter=voter, agent_id=agent_id)
         await interaction.response.send_message("代理投票する投票を選択", view=view)
     else:
         await interaction.response.send_message("投票がありません")
