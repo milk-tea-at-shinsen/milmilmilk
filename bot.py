@@ -387,7 +387,7 @@ async def export_vote_csv(interaction, result, msg_id, dt, mode):
     
     # discordに送信
     await interaction.followup.send(
-        content="集計結果CSV",
+        content="投票集計結果のCSVだよ(\*`･ω･)ゞ",
         files=[discord.File(grouped_file), discord.File(listed_file)]
     )
 
@@ -529,9 +529,9 @@ class VoteSelect(View):
         elif self.mode == VoteSelectMode.CANCEL_PROXY_VOTE:
             removed = cancel_proxy_vote(msg_id, self.voter, self.agent_id)
             if removed:
-                await interaction.followup.send(f"{self.voter}の代理投票をキャンセルしました")
+                await interaction.followup.send(f"{self.voter}の代理投票を取り消したよ(\*`･ω･)ゞ")
             else:
-                await interaction.followup.send(f"キャンセル可能な代理投票がありません")
+                await interaction.followup.send(f"取り消せる代理投票がないみたい(´･ω･`)")
         else:
             # 集計処理
             dt, result = await make_vote_result(interaction, msg_id)
@@ -629,7 +629,7 @@ async def on_ready():
 # コマンド定義
 #===============
 #=====/remind コマンド=====
-@bot.tree.command(name="remind", description="リマインダーをセットします")
+@bot.tree.command(name="remind", description="リマインダーをセットするよ")
 @app_commands.describe(
     date="日付(yyyy/mm/dd)",
     time="時刻(hh:mm)",
@@ -656,11 +656,11 @@ async def remind(interaction: discord.Interaction, date: str, time: str, msg: st
     # add_reminder関数に渡す
     add_reminder(dt, repeat, interval, channel_id, msg)
 
-    await interaction.response.send_message(f"{dt.strftime('%Y/%m/%d %H:%M')} にリマインダーをセットしました:saluting_face:")
+    await interaction.response.send_message(f"{dt.strftime('%Y/%m/%d %H:%M')} にリマインダーをセットしたよ(\*`･ω･)ゞ")
     print(f"予定を追加: {reminders[dt]}")
 
 #=====/reminder_list コマンド=====
-@bot.tree.command(name="reminder_list", description="リマインダーの一覧を表示します")
+@bot.tree.command(name="reminder_list", description="リマインダーの一覧を表示するよ")
 async def reminder_list(interaction: discord.Interaction):
     # 空のリストを作成
     items = []
@@ -685,33 +685,33 @@ async def reminder_list(interaction: discord.Interaction):
         await interaction.response.send_message(embed=embed)
     # リマインダーが設定されていない場合のメッセージ
     else:
-        await interaction.response.send_message("リマインダーは設定されていません")
+        await interaction.response.send_message("設定されているリマインダーがないみたい(´･ω･`)")
 
 #=====/reminder_delete コマンド=====
-@bot.tree.command(name="reminder_delete", description="リマインダーを削除します")
+@bot.tree.command(name="reminder_delete", description="リマインダーを削除するよ")
 async def reminder_delete(interaction: discord.Interaction):
     # リマインダーが設定されている場合、選択メニューを表示
     if reminders:
         view = ReminderSelect(reminders)
-        await interaction.response.send_message("削除するリマインダーを選択", view=view)
+        await interaction.response.send_message("削除するリマインダーを選んでね", view=view)
     # リマインダーが設定されていない場合のメッセージ
     else:
-        await interaction.response.send_message("リマインダーは設定されていません")
+        await interaction.response.send_message("設定されているリマインダーがないみたい(´･ω･`)")
 
 #=====/vote コマンド=====
-@bot.tree.command(name="vote", description="投票を作成します")
+@bot.tree.command(name="vote", description="投票を作成するよ")
 @app_commands.describe(
-    question="質問",
-    opt_1="選択肢1",
-    opt_2="選択肢2",
-    opt_3="選択肢3",
-    opt_4="選択肢4",
-    opt_5="選択肢5",
-    opt_6="選択肢6",
-    opt_7="選択肢7",
-    opt_8="選択肢8",
-    opt_9="選択肢9",
-    opt_10="選択肢10",
+    question="質問を書いてね",
+    opt_1="1番目の選択肢を書いてね",
+    opt_2="2番目の選択肢を書いてね",
+    opt_3="3番目の選択肢を書いてね",
+    opt_4="4番目の選択肢を書いてね",
+    opt_5="5番目の選択肢を書いてね",
+    opt_6="6番目の選択肢を書いてね",
+    opt_7="7番目の選択肢を書いてね",
+    opt_8="8番目の選択肢を書いてね",
+    opt_9="9番目の選択肢を書いてね",
+    opt_10="10番目の選択肢を書いてね",
 )
 async def vote(interaction: discord.Interaction,
      question: str, opt_1: str, opt_2: str=None, opt_3: str=None, opt_4: str=None, opt_5: str=None,
@@ -750,7 +750,7 @@ async def vote(interaction: discord.Interaction,
     add_vote(message.id, question, reactions, options)
 
 #=====/vote_result コマンド=====
-@bot.tree.command(name="vote_result", description="投票結果を表示します")
+@bot.tree.command(name="vote_result", description="投票結果を表示するよ")
 @app_commands.describe(mode="集計モード")
 @app_commands.choices(mode=[
     app_commands.Choice(name="中間集計", value="mid"),
@@ -760,41 +760,41 @@ async def vote_result(interaction: discord.Interaction, mode: str):
     if votes:
         if mode == "mid":
             view = VoteSelect(votes=votes, mode=VoteSelectMode.MID_RESULT, voter=None, agent_id=None)
-            await interaction.response.send_message("結果表示する投票を選択", view=view)
+            await interaction.response.send_message("どの投票結果を表示するか選んでね", view=view)
         elif mode == "final":
             view = VoteSelect(votes=votes, mode=VoteSelectMode.FINAL_RESULT, voter=None, agent_id=None)
-            await interaction.response.send_message("結果表示する投票を選択", view=view)
+            await interaction.response.send_message("どの投票結果を表示するか選んでね", view=view)
         else:
-            await interaction.response.send_message("集計モードの指定が不正です")
+            await interaction.response.send_message("選択モードの指定がおかしいみたい(´･ω･`)")
 
     # 投票がない場合のメッセージ
     else:
-        await interaction.response.send_message("投票がありません")
+        await interaction.response.send_message("集計できる投票がないみたい(´･ω･`)")
 
 #=====/proxy_vote コマンド=====
-@bot.tree.command(name="proxy_vote", description="代理投票を行います")
-@app_commands.describe(voter = "投票者名")
+@bot.tree.command(name="proxy_vote", description="本人の代わりに代理投票するよ")
+@app_commands.describe(voter = "投票する本人の名前を書いてね")
 async def proxy_vote(interaction: discord.Interaction, voter: str):
     if votes:
         agent_id = interaction.user.id
         view = VoteSelect(votes=votes, mode=VoteSelectMode.PROXY_VOTE, voter=voter, agent_id=agent_id)
-        await interaction.response.send_message("代理投票する投票を選択", view=view)
+        await interaction.response.send_message("どの投票に代理投票するか選んでね", view=view)
     else:
-        await interaction.response.send_message("投票がありません")
+        await interaction.response.send_message("代理投票できる投票がないみたい(´･ω･`)")
 
 #=====/cancel_proxy コマンド=====
-@bot.tree.command(name="cancel_proxy", description="代理投票をキャンセルします")
+@bot.tree.command(name="cancel_proxy", description="投票済みの代理投票を取り消すよ")
 @app_commands.describe(voter = "投票者名")
 async def cancel_proxy(interaction: discord.Interaction, voter: str):
     if votes:
         agent_id = interaction.user.id
         view = VoteSelect(votes=votes, mode=VoteSelectMode.CANCEL_PROXY_VOTE, voter=voter, agent_id=agent_id)
-        await interaction.response.send_message("キャンセルする代理投票を選択", view=view)
+        await interaction.response.send_message("代理投票を取り消しする投票を選んでね", view=view)
     else:
-        await interaction.response.send_message("投票がありません")
+        await interaction.response.send_message("取り消しできる投票がないみたい(´･ω･`)")
 
 #=====/export_members コマンド=====
-@bot.tree.command(name="export_members", description="メンバーリストを出力します")
+@bot.tree.command(name="export_members", description="サーバーのメンバーリストを出力するよ")
 async def export_members(interaction: discord.Interaction):
     await interaction.response.defer()
     guild = interaction.guild
@@ -814,7 +814,7 @@ async def export_members(interaction: discord.Interaction):
     
     # discordに送信
     await interaction.followup.send(
-        content="メンバー一覧CSV",
+        content="メンバー一覧のCSVだよ(\*`･ω･)ゞ",
         file=discord.File(filename)
     )
     
