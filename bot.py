@@ -507,7 +507,7 @@ class VoteSelect(View):
         # 代理投票と集計で処理を分岐
         if self.mode == VoteSelectMode.PROXY_VOTE:
             # 代理投票処理
-            view = VoteOptionSelect(msg_id, self.voter, self.agent)
+            view = VoteOptionSelect(msg_id, self.voter, self.agent_id)
             await interaction.followup.send("代理投票する選択肢を選択", view=view)
 
         else:
@@ -735,10 +735,10 @@ async def vote(interaction: discord.Interaction,
 async def vote_result(interaction: discord.Interaction, mode: str):
     if votes:
         if mode == "mid":
-            view = VoteSelect(votes=votes, mode=VoteSelectMode.MID_RESULT, voter=None, agent=None)
+            view = VoteSelect(votes=votes, mode=VoteSelectMode.MID_RESULT, voter=None, agent_id=None)
             await interaction.response.send_message("結果表示する投票を選択", view=view)
         elif mode == "final":
-            view = VoteSelect(votes=votes, mode=VoteSelectMode.FINAL_RESULT, voter=None, agent=None)
+            view = VoteSelect(votes=votes, mode=VoteSelectMode.FINAL_RESULT, voter=None, agent_id=None)
             await interaction.response.send_message("結果表示する投票を選択", view=view)
         else:
             await interaction.response.send_message("集計モードの指定が不正です")
@@ -752,7 +752,7 @@ async def vote_result(interaction: discord.Interaction, mode: str):
 @app_commands.describe(voter = "投票者名")
 async def proxy_vote(interaction: discord.Interaction, voter: str):
     if votes:
-        agent = interaction.user.id
+        agent_id = interaction.user.id
         view = VoteSelect(votes=votes, mode=VoteSelectMode.PROXY_VOTE, voter=voter, agent_id=agent_id)
         await interaction.response.send_message("代理投票する投票を選択", view=view)
     else:
