@@ -528,7 +528,7 @@ class VoteSelect(View):
         # 代理投票キャンセル
         elif self.mode == VoteSelectMode.CANCEL_PROXY_VOTE:
             cancel_proxy_vote(msg_id, self.voter, self.agent_id)
-            interaction.followup.send(f"{self.voter}の代理投票をキャンセルしました")
+            await interaction.followup.send(f"{self.voter}の代理投票をキャンセルしました")
         else:
             # 集計処理
             dt, result = await make_vote_result(interaction, msg_id)
