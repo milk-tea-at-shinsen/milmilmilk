@@ -195,8 +195,8 @@ def remove_proxy_vote(msg_id):
 #---代理投票(個別投票キャンセル)---
 def cancel_proxy_vote(msg_id, voter, agent_id):
     print("[start: cancel_proxy_vote]")
-    if msg_id in proxy_vote:
-        for key, value in proxy_vote[msg_id]:
+    if msg_id in proxy_votes:
+        for key, value in proxy_votes[msg_id]:
             if (key, value["agent_id"]) == (voter, agent_id):
                 removed = proxy_votes[msg_id][voter]
                 del proxy_votes[msg_id][voter]
