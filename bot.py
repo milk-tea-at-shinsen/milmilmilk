@@ -544,8 +544,6 @@ class VoteOptionSelect(View):
         self.voter = voter
         # agentプロパティに代理人をセット
         self.agent_id = agent_id
-        
-        guild = interaction.guild
 
         #選択リストの定義
         options = []
@@ -575,6 +573,7 @@ class VoteOptionSelect(View):
     # 選択肢選択後の関数定義
     async def select_callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
+        guild = interaction.guild
         
         opt_idx = []
         for opt_str in interaction.data["values"]:
