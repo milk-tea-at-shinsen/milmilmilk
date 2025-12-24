@@ -779,10 +779,10 @@ async def proxy_vote(interaction: discord.Interaction, voter: str):
     else:
         await interaction.response.send_message("投票がありません")
 
-#=====/cancel_proxy_vote コマンド=====
-@bot.tree.command(name="cancel_proxy_vote", description="代理投票をキャンセルします")
+#=====/cancel_proxy コマンド=====
+@bot.tree.command(name="cancel_proxy", description="代理投票をキャンセルします")
 @app_commands.describe(voter = "投票者名")
-async def cancel_proxy_vote(interaction: discord.Interaction, voter: str):
+async def cancel_proxy(interaction: discord.Interaction, voter: str):
     if votes:
         agent_id = interaction.user.id
         view = VoteSelect(votes=votes, mode=VoteSelectMode.CANCEL_PROXY_VOTE, voter=voter, agent_id=agent_id)
