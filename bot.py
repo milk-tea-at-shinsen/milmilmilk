@@ -544,6 +544,8 @@ class VoteOptionSelect(View):
         self.voter = voter
         # agentプロパティに代理人をセット
         self.agent_id = agent_id
+        
+        guild = interaction.guild
 
         #選択リストの定義
         options = []
