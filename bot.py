@@ -457,7 +457,7 @@ class ReminderSelect(View):
         #selectUIの定義
         if options:
             select = Select(
-                placeholder="削除するリマインダーを選択",
+                placeholder="削除するリマインダーを選んでね",
                 options = options
             )
             select.callback = self.select_callback
@@ -504,12 +504,12 @@ class VoteSelect(View):
         if options:
             if mode == VoteSelectMode.PROXY_VOTE:
                 select = Select(
-                    placeholder="代理投票する投票を選択",
+                    placeholder="代理投票する投票を選んでね",
                     options = options
                 )
             else:
                 select = Select(
-                    placeholder="集計する投票を選択",
+                    placeholder="集計する投票を選んでね",
                     options = options
                 )
             select.callback = self.select_callback
@@ -524,7 +524,7 @@ class VoteSelect(View):
         if self.mode == VoteSelectMode.PROXY_VOTE:
             # 代理投票処理
             view = VoteOptionSelect(msg_id, self.voter, self.agent_id)
-            await interaction.followup.send("代理投票する選択肢を選択", view=view)
+            await interaction.followup.send("代理投票する選択肢を選んでね", view=view)
         # 代理投票キャンセル
         elif self.mode == VoteSelectMode.CANCEL_PROXY_VOTE:
             removed = cancel_proxy_vote(msg_id, self.voter, self.agent_id)
@@ -582,7 +582,7 @@ class VoteOptionSelect(View):
         # selectUIの定義
         if options:
             select = Select(
-                placeholder="代理投票する選択肢を選択",
+                placeholder="代理投票する選択肢を選んでね",
                 min_values = 1,
                 max_values = len(options),
                 options = options
