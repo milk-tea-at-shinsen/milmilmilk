@@ -211,7 +211,9 @@ async def make_vote_result(interaction, msg_id):
     options = votes[msg_id]["options"]
     # メッセージを読み込み
     message = await interaction.channel.fetch_message(msg_id)
-
+    # サーバー情報を読み込み
+    guild = interaction.guild
+    
     # 結果用辞書を準備
     result = {}
     # 結果用辞書に結果を記録
