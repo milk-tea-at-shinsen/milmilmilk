@@ -361,16 +361,18 @@ def make_listed_rows(result):
     
     return header, rows
 
-#---投票結果CSV作成処理---
-def make_csv(filename, meta, header, rows):
+#---CSV作成処理---
+def make_csv(filename, rows, meta=None, header=None):
     print("[start: make_csv]")
     with open(filename, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         # metaの書込
-        for key, value in meta.items():
-            writer.writerow([f"#{key}: {value}"])
+        if meta:
+            for key, value in meta.items():
+                writer.writerow([f"#{key}: {value}"])
         # headerの書込
-        writer.writerow(header)
+        if header:
+            writer.writerow(header)
         # rowsの書込
         writer.writerows(rows)
 
@@ -386,18 +388,59 @@ async def export_vote_csv(interaction, result, msg_id, dt, mode):
     # csv(グループ型)の作成
     header, rows = make_grouped_rows(result)
     grouped_file = f"/tmp/{dt.strftime('%Y%m%d_%H%M')}_grouped.csv"
-    make_csv(grouped_file, meta, header, rows)
+    make_csv(grouped_file, rows, meta, header)
     
     # csv(リスト型)の作成
     header, rows = make_listed_rows(result)
     listed_file = f"/tmp/{dt.strftime('%Y%m%d_%H%M')}_listed.csv"
-    make_csv(listed_file, meta, header, rows)
+    make_csv(listed_file, rows, meta, header)
     
     # discordに送信
     await interaction.followup.send(
         content="投票集計結果のCSVだよ(\*`･ω･)ゞ",
         files=[discord.File(grouped_file), discord.File(listed_file)]
     )
+
+#=====OCR関係の処理=====
+#---OCR->CSV用データ整形処理---
+def extract_table_from_image(image_content):
+    image = vision.Image(content=image_content)
+    response = client.document_text_detection(request={"image": image})
+
+    words = []
+    for page in response.full_text_annotation.pages:
+        for block in page.blocks:
+            for paragraph in block.paragraphs:
+                for word in paragraph.words:
+                    text = "".join([s.text for s in word.symbols])
+                    x = word.bounding_box.vertices[0].x
+                    y = word.bounding_box.vertices[0].y
+                    words.append({"text": text, "x": x, "y": y})
+
+    # y座標で行をグループ化
+    words.sort(key=lambda w: w["y"])
+    lines = []
+    current_line = []
+    last_y = None
+
+    for word in words:
+        if last_y is None or abs(word["y"] - last_y) < 20:
+            current_line.append(word)
+        else:
+            lines.append(current_line)
+            current_line = [word]
+        last_y = word["y"]
+    if current_line:
+        lines.append(current_line)
+
+    # x座標で並べてCSV化
+    csv_lines = []
+    for line in lines:
+        line.sort(key=lambda w: w["x"])
+        texts = [w["text"] for w in line]
+        csv_lines.append(",".join(texts))
+
+    return "\n".join(csv_lines)
 
 #=====通知用ループ処理=====
 async def reminder_loop():
@@ -818,7 +861,7 @@ async def export_members(interaction: discord.Interaction):
     async for member in guild.fetch_members(limit=None):
         rows.append([member.id, member.display_name])
     
-    make_csv(filename, meta, header, rows)
+    make_csv(filename, rows, meta, header)
     
     # discordに送信
     await interaction.followup.send(
@@ -841,17 +884,18 @@ async def ocr(interaction: discord.Interaction, message: discord.Message):
         async with session.get(attachment.url) as resp:
             content = await resp.read()
     
-    image = vision.Image(content=content)
-    response = client.annotate_image({
-        "image": image,
-        "features": [{"type": vision.Feature.Type.TEXT_DETECTION}]
-    })
-    texts = response.text_annotations
+    # visionからテキストを受け取ってCSV用に整形
+    rows = extract_table_from_image(content)
     
-    if texts:
-        await interaction.followup.send(texts[0].description)
-    else:
-        await interaction.followup.send("文字が見つからなかったよ(´･ω･`)")
+    # csv作成処理
+    filename = f"/tmp/ocr_{datetime.now(JST).strftime('%Y%m%d_%H%M')}.csv"
+    make_csv(filename, rows)
+    
+    # CSVを出力
+    await interaction.followup.send(
+        content="OCR結果のCSVだよ(\*`･ω･)ゞ",
+        file=discord.File(filename)
+    )
     
 # Botを起動
 bot.run(os.getenv("DISCORD_TOKEN"))
