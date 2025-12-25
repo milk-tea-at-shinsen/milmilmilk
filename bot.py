@@ -834,8 +834,7 @@ async def ocr(interaction: discord.Interaction, message: discord.Message):
     if not message.attachments:
         await interaction.response.send("画像が添付されてないよ(´･ω･`)")
         return
-    
-    
+
     attachment = message.attachments[0]
     
     async with aiohttp.ClientSession() as session:
@@ -843,7 +842,10 @@ async def ocr(interaction: discord.Interaction, message: discord.Message):
             content = await resp.read()
     
     image = vision.Image(content=content)
-    response = client.text_detection(request={"image": image})
+    response = client.annotate_image({
+        "image": image,
+        "features": [{"type": vision.Feature.Type.TEXT_DETECTION}]
+    })
     texts = response.text_annotations
     
     if texts:
