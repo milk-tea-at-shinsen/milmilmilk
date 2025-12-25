@@ -418,18 +418,23 @@ def extract_table_from_image(image_content):
                     words.append({"text": text, "x": x, "y": y})
 
     # y座標で行をグループ化
+    THRESHOLD = 40
+
     words.sort(key=lambda w: w["y"])
     lines = []
     current_line = []
-    last_y = None
+    current_y = None
 
     for word in words:
-        if last_y is None or abs(word["y"] - last_y) < 20:
+        if current_y is None or abs(word["y"] - current_y) < THRESHOLD:
             current_line.append(word)
+            # 行の代表値を更新（平均）
+            current_y = (current_y + word["y"]) / 2 if current_y else word["y"]
         else:
             lines.append(current_line)
             current_line = [word]
-        last_y = word["y"]
+            current_y = word["y"]
+
     if current_line:
         lines.append(current_line)
 
