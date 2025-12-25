@@ -453,10 +453,9 @@ def extract_table_from_image(image_content):
     for line in lines:
         line.sort(key=lambda w: w["x"])
         texts = [w["text"] for w in line]
-        csv_lines.append(",".join(texts))
-
-    print(f"csv_lines:{csv_lines}")
-    return "\n".join(csv_lines)
+        csv_lines.append(texts)
+        
+    return csv_lines
 
 #=====通知用ループ処理=====
 async def reminder_loop():
