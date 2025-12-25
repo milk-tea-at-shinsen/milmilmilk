@@ -14,6 +14,7 @@ from enum import Enum
 import csv, io
 from google.cloud import vision
 from google.oauth2 import service_account
+import aiohttp
 
 # Botの準備
 intents = discord.Intents.default()
@@ -824,6 +825,24 @@ async def export_members(interaction: discord.Interaction):
         content="メンバー一覧のCSVだよ(\*`･ω･)ゞ",
         file=discord.File(filename)
     )
+    
+#=====/ocr コマンド=====
+@bot.tree.command(name=ocr, description="画像の文字をテキストとして読み取るよ")
+async def ocr(interaction: discord.Interaction, attachment: discord.Attachment):
+    await interaction.response.defer()
+    
+    async with aiohttp.ClientSession() as session:
+        async with session.get(attachment.url) as resp:
+            content = await resp.read()
+    
+    image = vision.Image(content=content)
+    response = client.text_detection(imane=image)
+    texts = response.text_annotations
+    
+    if texts:
+        await interaction.followup.send(texts[0].description)
+    else:
+        await interaction.followup.send("文字が見つからなかったよ(´･ω･`)")
     
 # Botを起動
 bot.run(os.getenv("DISCORD_TOKEN"))
