@@ -424,7 +424,7 @@ def extract_table_from_image(image_content):
                     #y = word.bounding_box.vertices[0].y
                     y = get_center_y(word)
                     words.append({"text": text, "x": x, "y": y})
-    print(words)
+    print(f"words辞書:{words}")
 
     # y座標で行をグループ化
     THRESHOLD = 40
@@ -445,7 +445,7 @@ def extract_table_from_image(image_content):
             current_y = word["y"]
 
     if current_line:
-        print(current_line)
+        print(f"現在行:{current_line}")
         lines.append(current_line)
 
     # x座標で並べてCSV化
@@ -455,7 +455,7 @@ def extract_table_from_image(image_content):
         texts = [w["text"] for w in line]
         csv_lines.append(",".join(texts))
 
-    print(csv_lines)
+    print(f"csv_lines:{csv_lines}")
     return "\n".join(csv_lines)
 
 #=====通知用ループ処理=====
@@ -902,7 +902,7 @@ async def ocr(interaction: discord.Interaction, message: discord.Message):
     
     # visionからテキストを受け取ってCSV用に整形
     rows = extract_table_from_image(content)
-    print(rows)
+    print(f"rows:{rows}")
     
     # csv作成処理
     filename = f"/tmp/ocr_{datetime.now(JST).strftime('%Y%m%d_%H%M')}.csv"
