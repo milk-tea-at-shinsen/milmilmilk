@@ -402,6 +402,13 @@ async def export_vote_csv(interaction, result, msg_id, dt, mode):
     )
 
 #=====OCR関係の処理=====
+#---行センター出し関数---
+def get_center_y(word):
+    ys = [v.y for v in word.bounding_box.vertices]
+    top = (ys[0] + ys[1]) / 2
+    bottom = (ys[2] + ys[3]) / 2
+    return (top + bottom) / 2
+
 #---OCR->CSV用データ整形処理---
 def extract_table_from_image(image_content):
     image = vision.Image(content=image_content)
@@ -414,7 +421,8 @@ def extract_table_from_image(image_content):
                 for word in paragraph.words:
                     text = "".join([s.text for s in word.symbols])
                     x = word.bounding_box.vertices[0].x
-                    y = word.bounding_box.vertices[0].y
+                    #y = word.bounding_box.vertices[0].y
+                    y = get_center_y(word)
                     words.append({"text": text, "x": x, "y": y})
 
     # y座標で行をグループ化
