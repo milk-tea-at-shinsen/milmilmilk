@@ -424,6 +424,7 @@ def extract_table_from_image(image_content):
                     #y = word.bounding_box.vertices[0].y
                     y = get_center_y(word)
                     words.append({"text": text, "x": x, "y": y})
+                    print(words)
 
     # y座標で行をグループ化
     THRESHOLD = 40
