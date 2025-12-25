@@ -827,7 +827,7 @@ async def export_members(interaction: discord.Interaction):
     )
     
 #=====/ocr コマンド=====
-@bot.tree.command(name=ocr, description="画像の文字をテキストとして読み取るよ")
+@bot.tree.command(name="ocr", description="画像の文字をテキストとして読み取るよ")
 async def ocr(interaction: discord.Interaction, attachment: discord.Attachment):
     await interaction.response.defer()
     
