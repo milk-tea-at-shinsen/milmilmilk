@@ -22,7 +22,7 @@ intents.members = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 # サービスアカウントキーの読込
-info = json.loads(os.environ["GOOGLE_APPLICATION_CREDENTIALS_JSON"]
+info = json.loads(os.environ["GOOGLE_APPLICATION_CREDENTIALS_JSON"])
 credentials = service_account.credentials.from_service_account_info(info)
 client = vision.ImageAnnotatorClient(credentials=credentials)
 
