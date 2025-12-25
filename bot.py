@@ -405,7 +405,7 @@ async def export_vote_csv(interaction, result, msg_id, dt, mode):
 #---OCR->CSV用データ整形処理---
 def extract_table_from_image(image_content):
     image = vision.Image(content=image_content)
-    response = client.document_text_detection(request={"image": image})
+    response = client.document_text_detection(image=image)
 
     words = []
     for page in response.full_text_annotation.pages:
