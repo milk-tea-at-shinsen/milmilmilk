@@ -827,16 +827,16 @@ async def export_members(interaction: discord.Interaction):
     )
     
 #=====/ocr コマンド=====
-@bot.tree.command(name="ocr", description="画像の文字をテキストとして読み取るよ")
-async def ocr(interaction: discord.Interaction):
+@bot.tree.context_menu(name="OCR",)
+async def ocr(interaction: discord.Interaction, message: discord.Message):
     await interaction.response.defer()
     
-    if not interaction.attachments:
+    if not message.attachments:
         await interaction.response.send("画像が添付されてないよ(´･ω･`)")
         return
     
     
-    attachment = interaction.attachments[0]
+    attachment = message.attachments[0]
     
     async with aiohttp.ClientSession() as session:
         async with session.get(attachment.url) as resp:
