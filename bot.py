@@ -843,7 +843,7 @@ async def ocr(interaction: discord.Interaction, message: discord.Message):
             content = await resp.read()
     
     image = vision.Image(content=content)
-    response = client.text_detection(imane=image)
+    response = client.text_detection(request={"image": image})
     texts = response.text_annotations
     
     if texts:
