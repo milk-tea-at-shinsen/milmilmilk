@@ -403,59 +403,78 @@ async def export_vote_csv(interaction, result, msg_id, dt, mode):
 
 #=====OCR関係の処理=====
 #---行センター出し関数---
-def get_center_y(word):
-    ys = [v.y for v in word.bounding_box.vertices]
+def get_center(symbol):
+    ys = [v.y for v in symbol.bounding_box.vertices]
     top = (ys[0] + ys[1]) / 2
     bottom = (ys[2] + ys[3]) / 2
-    return (top + bottom) / 2
+    center_y = (top + bottom) / 2
+    height = bottom - top
+    return center_y, height
 
 #---OCR->CSV用データ整形処理---
 def extract_table_from_image(image_content):
     image = vision.Image(content=image_content)
     response = client.document_text_detection(image=image)
 
-    words = []
+    symbols = []
+    total_height = 0
+    count = 0
+
+    # 1. symbol 単位で全部集める
     for page in response.full_text_annotation.pages:
         for block in page.blocks:
             for paragraph in block.paragraphs:
                 for word in paragraph.words:
-                    text = "".join([s.text for s in word.symbols])
-                    x = word.bounding_box.vertices[0].x
-                    #y = word.bounding_box.vertices[0].y
-                    y = get_center_y(word)
-                    words.append({"text": text, "x": x, "y": y})
-    print(f"words辞書:{words}")
+                    for symbol in word.symbols:
+                        x = symbol.bounding_box.vertices[0].x
+                        y, height = get_center(symbol)
+                        symbols.append({"char": symbol.text, "x": x, "y": y, "h": height})
+                        total_height += height
+                        count += 1
 
-    # y座標で行をグループ化
-    THRESHOLD = 40
+    # 2. 平均文字高さ
+    avg_height = total_height / count
+    line_threshold = avg_height * 1.5   # 行判定
+    word_threshold = avg_height * 2.0   # 単語判定
 
-    words.sort(key=lambda w: w["y"])
+    # 3. y でソートして行に分ける
+    symbols.sort(key=lambda s: s["y"])
+
     lines = []
     current_line = []
     current_y = None
 
-    for word in words:
-        if current_y is None or abs(word["y"] - current_y) < THRESHOLD:
-            current_line.append(word)
-            # 行の代表値を更新（平均）
-            current_y = (current_y + word["y"]) / 2 if current_y else word["y"]
+    for s in symbols:
+        if current_y is None or abs(s["y"] - current_y) < line_threshold:
+            current_line.append(s)
+            current_y = (current_y + s["y"]) / 2 if current_y else s["y"]
         else:
             lines.append(current_line)
-            current_line = [word]
-            current_y = word["y"]
+            current_line = [s]
+            current_y = s["y"]
 
     if current_line:
-        print(f"現在行:{current_line}")
         lines.append(current_line)
 
-    # x座標で並べてCSV化
-    csv_lines = []
+    # 4. 各行で x ソート → 単語分割
+    rows = []
     for line in lines:
-        line.sort(key=lambda w: w["x"])
-        texts = [w["text"] for w in line]
-        csv_lines.append(texts)
-        
-    return csv_lines
+        line.sort(key=lambda s: s["x"])
+
+        row = []
+        current_word = [line[0]]
+
+        for prev, curr in zip(line, line[1:]):
+            if curr["x"] - prev["x"] < word_threshold:
+                current_word.append(curr)
+            else:
+                row.append("".join(c["char"] for c in current_word))
+                current_word = [curr]
+
+        row.append("".join(c["char"] for c in current_word))
+        rows.append(row)
+
+    return rows
 
 #=====通知用ループ処理=====
 async def reminder_loop():
