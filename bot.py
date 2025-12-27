@@ -46,7 +46,7 @@ def load_data(data):
         #jsonが存在しない場合は、戻り値を空の辞書にする
         return {}
 
-#=====各辞書定義=====
+#=====各辞書読込前処理=====
 #---リマインダー辞書---
 data_raw = load_data("reminders")
 if data_raw:
@@ -204,6 +204,7 @@ def remove_proxy_vote(msg_id):
 def cancel_proxy_vote(msg_id, voter, agent_id):
     print("[start: cancel_proxy_vote]")
     if msg_id in proxy_votes:
+        # 該当する投票を取り出して投票者と代理人が一致するものを削除
         for key, value in proxy_votes[msg_id].items():
             if (key, value["agent_id"]) == (voter, agent_id):
                 removed = proxy_votes[msg_id][voter]
@@ -240,25 +241,31 @@ async def make_vote_result(interaction, msg_id):
     result = {}
     # 結果用辞書に結果を記録
     for i, reaction in enumerate(message.reactions):
-        users = []
-        display_names = []
+        #users = []
+        #display_names = []
         
         # リアクション投票分
-        async for user in reaction.users():
-            if user != bot.user:
-                users.append(user.mention)
-                display_names.append(user.display_name)
+        # リアクションしたユーザーがbotでなければリストに追加
+        users = [user.mention async for user in reaction.users() if user != bot.user]
+        display_names = [user.display_name async for user in reaction.users() if user != bot.user]
+            #if user != bot.user:
+                #users.append(user.mention)
+                #display_names.append(user.display_name)
         
         # 代理投票分
         if msg_id in proxy_votes:
+            # 投票者の投票内容を確認し該当する選択肢のものがあればリストに追加
             for voter, values in proxy_votes[msg_id].items():
                 for opt_idx in values["opt_idx"]:
                     if opt_idx == i:
                         agent_id = values["agent_id"]
+                        # 代理人のidから代理人を検索
                         agent = guild.get_member(agent_id)
+                        # 代理人が最近のキャッシュに見つからなければサーバー情報から検索
                         if agent is None:
                             try:
                                 agent = await guild.fetch_member(agent_id)
+                            # それでも見つからない場合はNoneを表示
                             except:
                                 agent = None
                         if agent:
