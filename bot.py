@@ -365,7 +365,7 @@ def make_listed_rows(result):
 #---CSV作成処理---
 def make_csv(filename, rows, meta=None, header=None):
     print("[start: make_csv]")
-    with open(filename, "w", newline="", encoding="utf-8") as f:
+    with open(filename, "w", newline="", encoding="utf-8-sig") as f:
         writer = csv.writer(f)
         # metaの書込
         if meta:
