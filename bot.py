@@ -526,7 +526,10 @@ def extract_table_from_image(image_content):
 def remove_duplicate_rows(rows):
     print("[start: remove_duplicate_rows]")
     unique_rows = [row for row in rows if row not in unique_rows]
-    return unique_rows
+    if unique_rows
+        return unique_rows
+    else:
+        return []
 
 #=====通知用ループ処理=====
 async def reminder_loop():
