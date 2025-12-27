@@ -490,7 +490,7 @@ def cluster_rows(lines, avr_height):
     return rows
 
 #---最頻列数を取得---
-def get_mode_columns(rows)
+def get_mode_columns(rows):
     col_counts = [len(row) for row in rows]
     return max(set(col_counts), key=col_counts.count)
 
