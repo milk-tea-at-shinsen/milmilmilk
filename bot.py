@@ -404,78 +404,89 @@ async def export_vote_csv(interaction, result, msg_id, dt, mode):
 
 #=====OCR関係の処理=====
 #---行センター出し関数---
-def get_center(symbol):
-    ys = [v.y for v in symbol.bounding_box.vertices]
-    top = (ys[0] + ys[1]) / 2
-    bottom = (ys[2] + ys[3]) / 2
-    center_y = (top + bottom) / 2
-    height = bottom - top
-    return center_y, height
+def get_x_center(bounding_box):
+    return sum(vertice.x for vertice in bounding_box.vertices) / 4
+
+#---列センター出し関数---
+def get_y_center(bounding_box):
+    return sum(vertice.y for vertice in bounding_box.vertices) / 4
+
+#---高さ出し関数---
+def get_height(bounding_box):
+    return max(vertice.y for vertice in bounding_box.vertices) - min(vertice.y for vertice in bounding_box.vertices)
 
 #---OCR->CSV用データ整形処理---
 def extract_table_from_image(image_content):
     image = vision.Image(content=image_content)
     response = client.document_text_detection(image=image)
 
-    symbols = []
-    total_height = 0
-    count = 0
+    # すべてのsymbolを取得
+    symbols = [{
+            "symbol": symbol.text,
+            "x": get_x_center(symbol.bounding_box),
+            "y": get_y_center(symbol.bounding_box),
+            "height": get_height(symbol.bounding_box)
+        }
+        for page in response.full_text_annotation.pages
+        for block in page.blocks
+        for paragraph in block.paragraphs
+        for word in paragraph.words
+        for symbol in word.symbols
+    ]
 
-    # 1. symbol 単位で全部集める
-    for page in response.full_text_annotation.pages:
-        for block in page.blocks:
-            for paragraph in block.paragraphs:
-                for word in paragraph.words:
-                    for symbol in word.symbols:
-                        x = symbol.bounding_box.vertices[0].x
-                        y, height = get_center(symbol)
-                        symbols.append({"char": symbol.text, "x": x, "y": y, "h": height})
-                        total_height += height
-                        count += 1
+    # 文字が存在しなかった場合
+    if not symbols:
+        return []
+    else:
+        # 文字の高さの平均を計算
+        avr_height = sum(symbol["height"] for symbol in symbols) / len(symbols) 
+        # symbolをy座標でソート
+        symbols.sort(key=lambda symbol: symbol["y"])
 
-    # 2. 平均文字高さ
-    avg_height = total_height / count
-    line_threshold = avg_height * 1.5   # 行判定
-    word_threshold = avg_height * 2.0   # 単語判定
-
-    # 3. y でソートして行に分ける
-    symbols.sort(key=lambda s: s["y"])
-
-    lines = []
-    current_line = []
-    current_y = None
-
-    for s in symbols:
-        if current_y is None or abs(s["y"] - current_y) < line_threshold:
-            current_line.append(s)
-            current_y = (current_y + s["y"]) / 2 if current_y else s["y"]
-        else:
-            lines.append(current_line)
-            current_line = [s]
-            current_y = s["y"]
-
-    if current_line:
-        lines.append(current_line)
-
-    # 4. 各行で x ソート → 単語分割
-    rows = []
-    for line in lines:
-        line.sort(key=lambda s: s["x"])
-
-        row = []
-        current_word = [line[0]]
-
-        for prev, curr in zip(line, line[1:]):
-            if curr["x"] - prev["x"] < word_threshold:
-                current_word.append(curr)
+        # y座標で同一行を判定
+        line = []
+        line_y = None
+        lines = []
+        for symbol in symbols:
+            if line_y is None:
+                symbol["y"]
+            if abs(symbol["y"] - line_y) < avr_height * 1.5:
+                line.append(symbol)
+                line_y = (line_y + symbol["y"]) / 2
             else:
-                row.append("".join(c["char"] for c in current_word))
-                current_word = [curr]
-
-        row.append("".join(c["char"] for c in current_word))
-        rows.append(row)
-
-    return rows
+                line.sort(key=lambda symbol: symbol["x"])
+                lines.append(line)
+                line = [symbol]
+                line_y = symbol["y"]
+        # 最終行をlinesに追加
+        if line:
+            line.sort(key=lambda symbol: symbol["x"])
+            lines.append(line)
+        
+        # x座標で単語を判定
+        word = []
+        row = []
+        rows = []
+        prev_x = None
+        for line in lines:
+            for symbol in line:
+                if prev_x is None:
+                    prev_x = symbol["x"]
+                if (symbol["x"] - prev_x) < avr_height * 1.5:
+                    word.append(symbol["symbol"])
+                    prev_x = symbol["x"]
+                else:
+                    row.append("".join(word))
+                    word = [symbol["symbol"]]
+                    prev_x = symbol["x"]
+            # 最終単語をrowに追加して、rowをrowsに追加
+            if word:
+                row.append("".join(word))
+                rows.append(row)
+                word = []
+                row = []
+                prev_x = None
+        return rows
 
 #=====通知用ループ処理=====
 async def reminder_loop():
