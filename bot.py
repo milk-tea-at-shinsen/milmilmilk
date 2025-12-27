@@ -973,6 +973,7 @@ async def table_ocr(interaction: discord.Interaction, message: discord.Message):
     
         # visionからテキストを受け取ってCSV用に整形
         temp_rows.extend(extract_table_from_image(content))
+    print(f"temp_rows:{temp_rows}")
     # 重複行を削除
     rows = remove_duplicate_rows(temp_rows)
     print(f"rows:{rows}")
