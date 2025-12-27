@@ -962,7 +962,8 @@ async def table_ocr(interaction: discord.Interaction, message: discord.Message):
         await interaction.response.send("画像が添付されてないよ(´･ω･`)")
         return
 
-    rows = []
+    # 画像ごとにOCR処理を実行してtemp_rowsに格納
+    temp_rows = []
     for i, attachment in enumerate(message.attachments):
         attachment = message.attachments[i]
 
@@ -971,7 +972,6 @@ async def table_ocr(interaction: discord.Interaction, message: discord.Message):
                 content = await resp.read()
     
         # visionからテキストを受け取ってCSV用に整形
-        temp_rows = []
         temp_rows.append(extract_table_from_image(content))
     # 重複行を削除
     rows = remove_duplicate_rows(temp_rows)
