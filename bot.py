@@ -499,11 +499,8 @@ def extract_table_body(rows):
     print("[start: extract_table_body]")
 
     mode_columns = get_mode_columns(rows)
-    print(f"mode_columns: {mode_columns}")
-    for row in rows:
-        if len(row) + 1 < mode_columns:
-            del row
-    return rows
+    table_body = [row for row in rows if len(row) + 1 >= mode_columns]
+    return table_body
 
 #---OCR->CSV用データ整形処理---
 def extract_table_from_image(image_content):
