@@ -525,12 +525,12 @@ def extract_table_from_image(image_content):
 #---重複行削除処理---
 def remove_duplicate_rows(rows):
     print("[start: remove_duplicate_rows]")
-    unique_rows = [row for row in rows if row not in unique_rows]
-    if unique_rows:
+    unique_rows = []
+    for row in rows:
+        if row not in unique_rows:
+            unique_rows.append(row)
         return unique_rows
-    else:
-        return []
-
+    
 #=====通知用ループ処理=====
 async def reminder_loop():
     await bot.wait_until_ready()
