@@ -449,7 +449,7 @@ def extract_table_from_image(image_content):
         lines = []
         for symbol in symbols:
             if line_y is None:
-                symbol["y"]
+                line_y =symbol["y"]
             if abs(symbol["y"] - line_y) < avr_height * 1.5:
                 line.append(symbol)
                 line_y = (line_y + symbol["y"]) / 2
