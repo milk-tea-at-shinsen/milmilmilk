@@ -446,7 +446,7 @@ def cluster_lines(symbols, avr_height):
         if line_y is None:
             line_y =symbol["y"]
         # 行のy座標範囲内ならlineに追加
-        if abs(symbol["y"] - line_y) < avr_height * 1.5:
+        if abs(symbol["y"] - line_y) < avr_height:
             line.append(symbol)
             line_y = (line_y + symbol["y"]) / 2
         # 行のy座標範囲外ならlinesにlineを追加してlineをリセット
