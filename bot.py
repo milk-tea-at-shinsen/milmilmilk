@@ -502,7 +502,7 @@ def extract_table_body(rows):
     print(f"mode_columns: {mode_columns}")
     for row in rows:
         if len(row) + 1 < mode_columns:
-            rows.remove(row)
+            del row
     return rows
 
 #---OCR->CSV用データ整形処理---
