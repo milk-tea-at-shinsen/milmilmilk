@@ -246,11 +246,9 @@ async def make_vote_result(interaction, msg_id):
         
         # リアクション投票分
         # リアクションしたユーザーがbotでなければリストに追加
-        users = [user.mention async for user in reaction.users() if user != bot.user]
-        display_names = [user.display_name async for user in reaction.users() if user != bot.user]
-            #if user != bot.user:
-                #users.append(user.mention)
-                #display_names.append(user.display_name)
+        reaction_users = [reaction_user async for reaction_user in reaction.users() if reaction_user != bot.user]
+        users = [user.mention for user in reaction_users]
+        display_names = [user.display_name for user in reaction_users]
         
         # 代理投票分
         if msg_id in proxy_votes:
@@ -343,14 +341,9 @@ def make_grouped_rows(result):
     # ユーザーリストの行列を入れ替え
     for i in range(max_users):
         # rowをリセット
-        row = []
-        # 各ユーザーリストの同番のユーザーをrowに並べる
-        for j in range(len(header)):
-            if i < len(users[j]):
-                row.append(users[j][i])
-            # ユーザーリストを使い切っている場合は空欄を連結
-            else:
-                row.append("")
+        #row = []
+        # 各ユーザーリストの同番のユーザーをrowに並べる, 存在しない場合は空文字を追加
+        row = [users[j][i] if i < len(users[j]) else "" for j in range(len(header))]
         # rowをまとめてrowsを作る
         rows.append(row)
     
@@ -360,11 +353,12 @@ def make_grouped_rows(result):
 def make_listed_rows(result):
     print("[start: make_listed_rows]")
     header = ["option", "users"]
-    rows = []
     
-    for i, value in result.items():
-        for user in value["display_names"]:
-            rows.append([value["option"], user])
+    rows = [
+        [value["option"], user]
+         for key, value in result.items()
+         for user in value["display_names"]
+    ]
     
     return header, rows
 
@@ -687,9 +681,7 @@ class VoteOptionSelect(View):
         await interaction.response.defer()
         guild = interaction.guild
         
-        opt_idx = []
-        for opt_str in interaction.data["values"]:
-            opt_idx.append(int(opt_str))
+        opt_idx = [int(opt_str) for opt_str in interaction.data["values"]]
         
         add_proxy_votes(self.msg_id, self.voter, self.agent_id, opt_idx)
         agent = guild.get_member(self.agent_id)
@@ -897,10 +889,7 @@ async def export_members(interaction: discord.Interaction):
         "collected_at": datetime.now(JST).strftime("%Y/%m/%d %H:%M")
     }
     header = ["user_id", "display_name"]
-    rows = []
-    
-    async for member in guild.fetch_members(limit=None):
-        rows.append([member.id, member.display_name])
+    rows = [[member.id, member.display_name] async for member in guild.fetch_members(limit=None)]
     
     make_csv(filename, rows, meta, header)
     
