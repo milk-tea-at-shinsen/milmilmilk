@@ -498,8 +498,10 @@ def get_mode_columns(rows):
 def extract_table_body(rows):
     print("[start: extract_table_body]")
 
+    mode_columns = get_mode_columns(rows)
+    print(f"mode_columns: {mode_columns}")
     for row in rows:
-        if len(row) + 1 < get_mode_columns(rows):
+        if len(row) + 1 < mode_columns:
             rows.remove(row)
     return rows
 
