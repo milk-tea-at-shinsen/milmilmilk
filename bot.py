@@ -415,12 +415,9 @@ def get_y_center(bounding_box):
 def get_height(bounding_box):
     return max(vertice.y for vertice in bounding_box.vertices) - min(vertice.y for vertice in bounding_box.vertices)
 
-#---OCR->CSV用データ整形処理---
-def extract_table_from_image(image_content):
-    image = vision.Image(content=image_content)
-    response = client.document_text_detection(image=image)
-
-    # すべてのsymbolを取得
+#---symbol取得処理---
+def get_symbols(response):
+    print("[start: get_symbols]")
     symbols = [{
             "symbol": symbol.text,
             "x": get_x_center(symbol.bounding_box),
@@ -433,6 +430,86 @@ def extract_table_from_image(image_content):
         for word in paragraph.words
         for symbol in word.symbols
     ]
+    return symbols
+
+#---行作成処理---
+def cluster_lines(symbols, avr_height):
+    print("[start: cluster_lines]")
+    # symbolをy座標でソート
+    symbols.sort(key=lambda symbol: symbol["y"])
+    # y座標で同一行を判定
+    line = []
+    line_y = None
+    lines = []
+    for symbol in symbols:
+        # 最初の行のy座標を設定
+        if line_y is None:
+            line_y =symbol["y"]
+        # 行のy座標範囲内ならlineに追加
+        if abs(symbol["y"] - line_y) < avr_height * 1.5:
+            line.append(symbol)
+            line_y = (line_y + symbol["y"]) / 2
+        # 行のy座標範囲外ならlinesにlineを追加してlineをリセット
+        else:
+            line.sort(key=lambda symbol: symbol["x"])
+            lines.append(line)
+            line = [symbol]
+            line_y = symbol["y"]
+    # 最終行をlinesに追加
+    if line:
+        line.sort(key=lambda symbol: symbol["x"])
+        lines.append(line)
+    return lines
+
+#---列項目作成処理---
+def cluster_rows(lines, avr_height):
+    print("[start: cluster_rows]")
+    # x座標で単語を判定
+    word = []
+    row = []
+    rows = []
+    prev_x = None
+    for line in lines:
+        for symbol in line:
+            if prev_x is None:
+                prev_x = symbol["x"]
+            if (symbol["x"] - prev_x) < avr_height * 2:
+                word.append(symbol["symbol"])
+                prev_x = symbol["x"]
+            else:
+                row.append("".join(word))
+                word = [symbol["symbol"]]
+                prev_x = symbol["x"]
+        # 最終単語をrowに追加して、rowをrowsに追加
+        if word:
+            row.append("".join(word))
+            rows.append(row)
+            word = []
+            row = []
+            prev_x = None
+    return rows
+
+#---最頻列数を取得---
+def get_mode_columns(rows)
+    col_counts = [len(row) for row in rows]
+    return max(set(col_counts), key=col_counts.count)
+
+#---表本体抽出処理---
+def extract_table_body(rows):
+    print("[start: extract_table_body]")
+
+    for row in rows:
+        if len(row) + 1 < get_mode_columns(rows):
+            rows.remove(row)
+    return rows
+
+#---OCR->CSV用データ整形処理---
+def extract_table_from_image(image_content):
+    image = vision.Image(content=image_content)
+    response = client.document_text_detection(image=image)
+
+    # symbolsを取得
+    symbols = get_symbols(response)
 
     # 文字が存在しなかった場合
     if not symbols:
@@ -440,52 +517,9 @@ def extract_table_from_image(image_content):
     else:
         # 文字の高さの平均を計算
         avr_height = sum(symbol["height"] for symbol in symbols) / len(symbols) 
-        # symbolをy座標でソート
-        symbols.sort(key=lambda symbol: symbol["y"])
-
-        # y座標で同一行を判定
-        line = []
-        line_y = None
-        lines = []
-        for symbol in symbols:
-            if line_y is None:
-                line_y =symbol["y"]
-            if abs(symbol["y"] - line_y) < avr_height * 1.5:
-                line.append(symbol)
-                line_y = (line_y + symbol["y"]) / 2
-            else:
-                line.sort(key=lambda symbol: symbol["x"])
-                lines.append(line)
-                line = [symbol]
-                line_y = symbol["y"]
-        # 最終行をlinesに追加
-        if line:
-            line.sort(key=lambda symbol: symbol["x"])
-            lines.append(line)
         
-        # x座標で単語を判定
-        word = []
-        row = []
-        rows = []
-        prev_x = None
-        for line in lines:
-            for symbol in line:
-                if prev_x is None:
-                    prev_x = symbol["x"]
-                if (symbol["x"] - prev_x) < avr_height * 1.5:
-                    word.append(symbol["symbol"])
-                    prev_x = symbol["x"]
-                else:
-                    row.append("".join(word))
-                    word = [symbol["symbol"]]
-                    prev_x = symbol["x"]
-            # 最終単語をrowに追加して、rowをrowsに追加
-            if word:
-                row.append("".join(word))
-                rows.append(row)
-                word = []
-                row = []
-                prev_x = None
+        lines = cluster_lines(symbols, avr_height)
+        rows = extract_table_body(cluster_rows(lines, avr_height))
         return rows
 
 #=====通知用ループ処理=====
