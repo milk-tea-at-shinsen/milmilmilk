@@ -521,7 +521,8 @@ def extract_table_from_image(image_content):
         avr_height = sum(symbol["height"] for symbol in symbols) / len(symbols) 
         
         lines = cluster_lines(symbols, avr_height)
-        rows = extract_table_body(cluster_rows(lines, avr_height))
+        rows = cluster_rows(lines, avr_height)
+        rows = extract_table_body(rows)
         return rows
 
 #=====通知用ループ処理=====
