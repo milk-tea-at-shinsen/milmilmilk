@@ -529,7 +529,7 @@ def remove_duplicate_rows(rows):
     for row in rows:
         if row not in unique_rows:
             unique_rows.append(row)
-        return unique_rows
+    return unique_rows
     
 #=====通知用ループ処理=====
 async def reminder_loop():
